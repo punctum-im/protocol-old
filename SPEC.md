@@ -26,8 +26,7 @@ Note: if only one user/instance/server/action is mentioned in the example, use t
 
 * Ux - User. The x is a number assigned to each user in the example.
 * Ix - Instance. The x is a number assigned to each instance in the example.
-* Sx - server. The x is a number assigned to each server in the example.
-* Ax - Action. The x is a number assigned to each action in the example.
+* Sx - Server. The x is a number assigned to each server in the example.
 
 ## Dates
 
@@ -42,9 +41,17 @@ Each object and action, when retrieved, MUST contain the following values in the
 - id (number, contains the object/action's ID)
 - type (string, object or action)
 
+Information about IDs can be accessed through
+
+```
+$domain/api/v1/id/<ID>
+```
+
+where ``<ID>`` is the ID that you want to get information about.
+
 ### Objects
 
-Users, servers, channels and messages are objects. Every object MUST have a numerical ID, which allows it to be quickly located and accessed. You **cannot** change an object's ID once it's been assigned. Object IDs MUST NOT overlap. Object IDs and action IDs MUST NOT overlap.
+Users, servers, channels and messages are objects. Every object MUST have a numerical ID, which allows it to be quickly located and accessed. You **cannot** change an object's ID once it's been assigned. Object IDs MUST NOT overlap.
 
 In the Euphony Project, the main hierarchy of objects is as follows (from largest/most important to smallest/least important):
 
@@ -53,23 +60,12 @@ In the Euphony Project, the main hierarchy of objects is as follows (from larges
 * Role (servers together certain people in a server)
 * Server (a group containing channels, compare to Discord's servers/guilds)
 * Channel (which contains messages, compare to IRC/Matrix channels or channels in a Discord server/guild)
+* Attachement (as in, a quote, poll or other kind of embed)
 * Message
-
-An object MUST have the type value set to 'object'.
 
 #### Example
 
 An application wants to get information about an user. In order to do so, it must first find its object ID. Once located, this ID can be used to access information about the user, even if they change their name.
-
-### Actions
-
-If an action modifies the information about any object, it can be classified with its own ID. Examples of actions include: changing profile information; sending, deleting or editing a message; changing a server's prefferences. Each action has its own numerical ID. Action IDs MUST NOT overlap. Object IDs and action IDs MUST NOT overlap.
-
-An action MUST have the type value set to 'action'.
-
-#### Example
-
-An user changes their profile picture. This action gets its own numerical ID, which allows it to categorize it on the server. This action can then be federated to other servers. Upon recieving the action, other servers will assign it its own IDs, while keeping track of the original ID that it had on the server (see Federation), so if it ever needs to be reverted you can notify those servers about it.
 
 ### Retrieving information about IDs
 
@@ -84,10 +80,11 @@ where <ID> is the ID you want to get information on. This will return a request 
 ```json
 {
 	"id": <ID>,
-	"type": <object/action>,
 	...insert the object/action's required values...
 }
 ```
+
+In order to prevent abuse, ALL IDS except for 0 MUST NOT be accessible without prior authentication.
 
 ## Federation
 
@@ -97,7 +94,25 @@ Federation works on the following principle:
 
 Each channel can be subscribed to, which means that the instance is aware of the channel's existence and will sync it, allowing the users of that instance to recieve and send messages. Instances stash content that has to be sent to other instances' inboxes in a private outbox.
 
-When an object or action gets from the remote instance to the local instance,
+The public inbox is located at
+
+```
+$domain/api/v1/federation/inbox
+```
+
+and, upon being queried with a GET request, it MUST return information about the instance (ID 0).
+
+When an object gets from the remote instance to the local instance, the local instance assigns it its own ID, and makes it a regular object. The remote ID and domain are kept in the ``remote-domain`` and ``remote-id`` values.
+
+```json
+{
+	"id": localid
+	"remote-domain": "$remotedomain"
+	"remote-id": remoteid
+	"type": object
+	...insert any required values...
+}
+```
 
 ### Example
 
@@ -107,7 +122,7 @@ U2 is on I2. U2 sends a message to the server on I2. The server pings every subs
 
 ### Stashing
 
-When the remote server can't be contacted, the local server creates a stash list, which contains the ID ranges that have to be sent to the remote server. It pings the remote server every X minutes (reccomended default: 10 minutes) and if it gets a connection, it sends it the stashed requests. If a server is down for more than 7 days, it is considered closed, until a request is recieved from the software.
+When the remote server can't be contacted, the local server creates a stash list, which contains the ID ranges that have to be sent to the remote server. It pings the remote server every X minutes (reccomended default: 10 minutes) and if it gets a connection, it sends it the stashed requests. If a server is down for more than 7 days, it is considered closed, until any request is recieved back.
 
 In order to ease this process, servers can send a request to another letting them know that they're back online. This triggers an automatic sync that recieves all requests from a stash without having to wait until the remote server is available. It is reccomended that server software checks for connection dropouts and, once identified, waits for the dropout to end, then send the resync request once the connection is available.
 
@@ -120,13 +135,13 @@ As such, this concept covers two cases:
 
 ### Accessing information about remote instances
 
-When an instance begins to federate with another instance, its domain is saved in
+When an instance begins to federate with another instance, its ID 0 is copied to
 
 ```
-$domain/api/v1/federated/remote-instance.domain
+$domain/api/v1/federation/$remotedomain
 ```
 
-where ``remote-instance.domain`` is the remote instance.
+where ``$remotedomain`` is the remote instance's domain.
 
 If queried, this will return the equivalent of the remote server's ID 0 (which contains information about the instance).
 
@@ -141,7 +156,7 @@ If queried, this will return the equivalent of the remote server's ID 0 (which c
 Assuming an object/action has federated to the instance, it is possible to retrieve its ID on the server it has federated to using
 
 ```
-$domain/api/v1/federated/remote-instance.domain/ID
+$domain/api/v1/federation/$remotedomain/ID
 ```
 
 Where ``ID`` is the ID from the remote domain.
