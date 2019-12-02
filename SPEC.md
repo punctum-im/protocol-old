@@ -20,6 +20,8 @@ The main goal of this project is to create a chat platform that is transparent a
 * Action - Actions taking place on the server (see the Actions section for more information).
 * Message - A single message, placed in a channel.
 
+Additional note: all JSON fields that use "..." as the name are intended to be comments and MUST NOT be included in final requests.
+
 ### Example keywords
 
 Note: if only one user/instance/server/action is mentioned in the example, use the full words. Only use these keywords for examples where multiple objects exist.
@@ -79,10 +81,12 @@ where <ID> is the ID you want to get information on. This will return a request 
 
 ```json
 {
-	"id": <ID>,
-	...insert the object/action's required values...
+	"id": 1,
+	"...": "...insert any required values..."
 }
 ```
+
+where 1 is the ID you requested.
 
 In order to prevent abuse, ALL IDS except for 0 MUST NOT be accessible without prior authentication.
 
@@ -106,11 +110,11 @@ When an object gets from the remote instance to the local instance, the local in
 
 ```json
 {
-	"id": localid
-	"remote-domain": "$remotedomain"
-	"remote-id": remoteid
-	"type": object
-	...insert any required values...
+	"id": 1,
+	"remote-domain": "$remotedomain",
+	"remote-id": "remoteid",
+	"type": "object",
+	"...": "...insert any required values..."
 }
 ```
 
@@ -147,9 +151,10 @@ If queried, this will return the equivalent of the remote server's ID 0 (which c
 
 ```json
 {
-	"type": object,
-	"object-type": instance,
-	...insert instance-specific information here...
+	"id": 0,
+	"type": "object",
+	"object-type": "instance",
+	"...": "...insert instance-specific information here..."
 }
 ```
 
@@ -165,10 +170,10 @@ This will automatically locate the right ID and print required information.
 
 ```json
 {
-	"remote-domain": Domain from which the ID was recieved.
-	"remote-id": ID on remote server,
-	"id": ID on local server,
-	...insert other object/action specific information...
+	"remote-domain": "Domain from which the ID was recieved".
+	"remote-id": "ID on remote server (number)",
+	"id": "ID on local server",
+	"...": "...insert other object/action specific information..."
 }
 ```
 
