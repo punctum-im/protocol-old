@@ -170,7 +170,7 @@ This will automatically locate the right ID and print required information.
 
 ```json
 {
-	"remote-domain": "Domain from which the ID was recieved".
+	"remote-domain": "Domain from which the ID was recieved",
 	"remote-id": "ID on remote server (number)",
 	"id": "ID on local server",
 	"...": "...insert other object/action specific information..."
