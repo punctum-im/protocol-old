@@ -14,7 +14,7 @@ The main goal of this project is to create a chat platform that is transparent a
 ## Keywords
 
 * User - User of an instance.
-* Instance - The instance (running a Euphony Project compatible server). **DO NOT CONFUSE WITH SERVERS.**
+* Instance - The instance (running a Euphony Project compatible server).
 * Server - A group which contains channels. **DO NOT CONFUSE WITH INSTANCES.**
 * Channel - A channel of communication. DMs and group chats are also channels.
 * Action - Actions taking place on the server (see the Actions section for more information).
@@ -29,7 +29,7 @@ Note: if only one user/instance/server/action is mentioned in the example, use t
 * Ux - User. The x is a number assigned to each user in the example.
 * Ix - Instance. The x is a number assigned to each instance in the example.
 * Sx - Server. The x is a number assigned to each server in the example.
-
+* Ox - Object. The x is a number assigned to each object in the example.
 ## Dates
 
 All dates MUST be stored as time from the UNIX epoch. This prevents date formatting issues and makes them easier to parse.
@@ -96,7 +96,7 @@ Each instance MUST have a public inbox (which can be accessed by other servers) 
 
 Federation works on the following principle:
 
-Each channel can be subscribed to, which means that the instance is aware of the channel's existence and will sync it, allowing the users of that instance to recieve and send messages. Instances stash content that has to be sent to other instances' inboxes in a private outbox.
+Each channel can be subscribed to, which means that the remote instance knows that it has to send data to another. Instances stash content that has to be sent to other instances' inboxes in a private outbox.
 
 The public inbox is located at
 
@@ -106,7 +106,11 @@ $domain/api/v1/federation/inbox
 
 and, upon being queried with a GET request, it MUST return information about the instance (ID 0).
 
+To send an ID to another server, the ID's content is simply POSTed to the remote instance's inbox.
+
 When an object gets from the remote instance to the local instance, the local instance assigns it its own ID, and makes it a regular object. The remote ID and domain are kept in the ``remote-domain`` and ``remote-id`` values.
+
+An example of an ID that was recieved from another instance:
 
 ```json
 {
@@ -185,6 +189,8 @@ A server is a group comprising of any amount of text and voice channels. Users c
 
 ## List of objects with properties
 
+This section contains every object with its required values.
+
 > :information_source: The layout of each property is as follows:
 > name (type, optional description) {read/write permissions (read - r, write - w)}
 
@@ -238,7 +244,7 @@ A server is a group comprising of any amount of text and voice channels. Users c
 
 ##### Settings
 
-**Information** [server.info]
+**Information** [server:info]
 
 - name (string) {r[w]}
 - description (string) {r[w]}
@@ -246,7 +252,7 @@ A server is a group comprising of any amount of text and voice channels. Users c
 - in-search-index (bool, decides if the server can be found through built-in search tools. The reccomended default is false.) {r[w]}
 - owner (number, ID of owner user) {r, rw with server.changeowner scope}
 
-**Roles** [server.roles]
+**Roles** [server:roles]
 
 > :information_source: Note: this scope is also required to view information about individual roles.
 
