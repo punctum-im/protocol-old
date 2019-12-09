@@ -14,6 +14,7 @@ The main goal of this project is to create a chat platform that is transparent a
 ## Keywords
 
 * User - User of an instance.
+* Account - An account on an instance. Only used when mentioning the object type.
 * Instance - The instance (running a Euphony Project compatible server).
 * Server - A group which contains channels. **DO NOT CONFUSE WITH INSTANCES.**
 * Channel - A channel of communication. DMs and group chats are also channels.
@@ -153,6 +154,8 @@ where ``$remotedomain`` is the remote instance's domain.
 
 If queried, this will return the equivalent of the remote server's ID 0 (which contains information about the instance).
 
+``GET $domain/api/v1/federation/$remotedomain``
+
 ```json
 {
 	"id": 0,
@@ -172,6 +175,8 @@ Where ``ID`` is the ID from the remote domain.
 
 This will automatically locate the right ID and print required information.
 
+``GET $domain/api/v1/federation/$remotedomain/$ID``
+
 ```json
 {
 	"remote-domain": "Domain from which the ID was recieved",
@@ -186,6 +191,60 @@ This will automatically locate the right ID and print required information.
 > :warning: DO NOT confuse servers with instances or group DMs!
 
 A server is a group comprising of any amount of text and voice channels. Users can join a server, and roles can be given to them. These roles can have certain permissions assigned to them.
+
+# Technical details
+
+## List of valid REST API calls
+
+This section contains evert REST API call that can be made, alongside a description and expected output.
+
+This section is intended for developement purposes only; most of the calls are properly explained above. This list is to be used as a referrence for possible implementations.
+
+### GET /api/v1/instance
+
+Returns ID 0 (information about the instance
+
+### GET /api/v1/id/$ID
+
+Returns information about the object associated with the ID. If the ID does not exist, it MUST return the 404 status code.
+
+This request MUST require authentication, unless ID 0 is being queried.
+
+Please note that this request does not, and MUST NOT, allow for operations on the ID (such as pushing or patching).
+
+### GET /api/v1/id/$ID/type
+
+Returns the type and object-type of an ID. If the ID does not exist, it MUST return the 404 status code.
+
+This request MUST require authentication, unless ID 0 is being queried.
+
+### GET /api/v1/accounts/$ID
+
+Returns information about an account, by ID. If the ID is not an account, it MUST return:
+
+```json
+{
+	"error": "Not an account"
+}
+```
+
+If the ID does not exist, it MUST return the 404 status code.
+
+To access the email field, additional authentication is required.
+
+#### Example output:
+
+```json
+{
+	"id": 1,
+	"type": object,
+	"object-type": account,
+	"nickname": "example"
+	"bio": "Test account"
+	"status": "Testing :)"
+	"email": "tester@example.com"
+}
+```
 
 ## List of objects with properties
 
@@ -204,18 +263,18 @@ This section contains every object with its required values.
 - name (string, instance-specific name) {r[w]} [modify:instance]
 - description (string, instance-specific description) {r[w]} [modify:instance]
 
-### User
+### Account
 
 #### Public values
 
-- object-type (string, MUST be "user")
+- object-type (string, MUST be "account")
 - nickname (string) {r[w]} [account.modify]
 - status (string) {r[w]} [account.modify]
 - bio (string) {r[w]} [account.modify]
 
 #### Private values (require scope for reading)
 
-- email (string) {[rw]} [account.modify]
+- email (string, DO NOT FEDERATE) {[rw]} [account.modify]
 
 ### Message
 
@@ -224,7 +283,7 @@ This section contains every object with its required values.
 - object-type (string, MUST be "message")
 - content (string) {r[w]} [message.edit]
 - server-id (number, contains ID of the server the channel is present in) {r}
-- creator (number, contains ID of the user who sent the message) {r}
+- creator (number, contains ID of the account who sent the message) {r}
 - post-date (number, date) {r}
 - edit-dates (list with numbers, date, optional) {r}
 - attachement (string, contains link to file with https:// or http:// prefix) {r}
