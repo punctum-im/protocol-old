@@ -31,6 +31,7 @@ Note: if only one user/instance/server/action is mentioned in the example, use t
 * Ix - Instance. The x is a number assigned to each instance in the example.
 * Sx - Server. The x is a number assigned to each server in the example.
 * Ox - Object. The x is a number assigned to each object in the example.
+
 ## Dates
 
 All dates MUST be stored as time from the UNIX epoch. This prevents date formatting issues and makes them easier to parse.
@@ -202,7 +203,9 @@ This section is intended for developement purposes only; most of the calls are p
 
 ### GET /api/v1/instance
 
-Returns ID 0 (information about the instance
+Returns ID 0 (information about the instance).
+
+See details about the Instance object in the List of objects with properties for more information.
 
 ### GET /api/v1/id/$ID
 
@@ -230,19 +233,49 @@ Returns information about an account, by ID. If the ID is not an account, it MUS
 
 If the ID does not exist, it MUST return the 404 status code.
 
-To access the email field, additional authentication is required.
-
 #### Example output:
 
 ```json
 {
 	"id": 1,
-	"type": object,
-	"object-type": account,
+	"type": "object",
+	"object-type": "account",
 	"nickname": "example"
 	"bio": "Test account"
 	"status": "Testing :)"
 	"email": "tester@example.com"
+}
+```
+
+See details about the Account object in the List of objects with properties for more information.
+
+### PATCH /api/v1/accounts/$ID
+
+Modifies information about an account.
+
+### GET /api/v1/messages/$ID
+
+Returns information about a message, by ID. If the ID does not belong to a message, it MUST return:
+
+```json
+{
+	"error": "Not an account"
+}
+```
+
+If the ID does not exist, it MUST return the 404 status code.
+
+#### Example output:
+
+```json
+{
+	"id": 4,
+	"type": "object",
+	"object-type": "message",
+	"server-id": "3"
+	"creator": "1"
+	"post-date": "0"
+	"content": "Testing messages."
 }
 ```
 
@@ -257,11 +290,12 @@ This section contains every object with its required values.
 
 #### Public values
 
-- object-type (string, MUST be "instance")
-- address (string, contains domain name, required for federation) {r}
-- server-software (string, set by the server, contains name and version of the Euphony-compatible server) {r}
-- name (string, instance-specific name) {r[w]} [modify:instance]
-- description (string, instance-specific description) {r[w]} [modify:instance]
+| Key             | Value type | Required? | Require authentication? | Read/write | Federate? | Notes                                                                                 |
+|-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
+| address         | string     | yes       | r: no; w: no                    | r          | yes       | Contains the domain name for the instance. Required for federation.  MUST NOT CHANGE. |
+| server-software | string     | yes       | r: no; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
+| name            | string     | yes       | r: no; w: yes [modify:instance] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
+| description     | string     | yes       | r: no; w: yes [modify:instance] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
 
 ### Account
 
@@ -276,13 +310,15 @@ This section contains every object with its required values.
 
 - email (string, DO NOT FEDERATE) {[rw]} [account.modify]
 
+### Channel
+
 ### Message
 
 #### Public values
 
 - object-type (string, MUST be "message")
 - content (string) {r[w]} [message.edit]
-- server-id (number, contains ID of the server the channel is present in) {r}
+- channel-id (number, contains ID of the channel) {r}
 - creator (number, contains ID of the account who sent the message) {r}
 - post-date (number, date) {r}
 - edit-dates (list with numbers, date, optional) {r}
