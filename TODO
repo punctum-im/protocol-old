@@ -16,3 +16,7 @@
 
 - Add attachements and channels to the spec.
   * Somehow, they're not here yet.
+
+- Fix JSON
+  * We need to attach some kind of linter lol.
+  * Maybe we could add a md linter and make a full push alternative?
