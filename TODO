@@ -1,0 +1,18 @@
+# Euphony Project TODO
+
+- Find a new name for the project
+  * Colon? Too much like a body part.
+
+- Find a new name for "servers".
+  * I've been considering "portals" but it's really cheesy.
+  * Community? Group? They both conflict with the normal words (community as in opensource help, group as in direct dm group?)
+  * Heck, even Discord calls them "guilds" internally!
+
+- Finish the object info tables.
+  * Also, test if they even work.
+
+- Add more API endpoints
+  * Most notably, for servers, messages and attachments.
+
+- Add attachements and channels to the spec.
+  * Somehow, they're not here yet.
