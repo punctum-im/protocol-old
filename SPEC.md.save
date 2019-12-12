@@ -195,27 +195,7 @@ A server is a group comprising of any amount of text and voice channels. Users c
 
 ## Channels
 
-Channels are channels of communication that can be nested within servers or stay standalone as group DMs. There are three types of channels: text channels, media channels (voice and video chat) and direct message channels.
-
-Channels have the ``object-type`` of ``channel``.
-
-### Text channels
-
-Text channels have the ``channel-type`` of ``text``. They are capable of storing messages. 
-
-Text channels MUST be attached to a server. The server the channel is placed in is stored in the ``parent-server`` value.
-
-### Media channels
-
-Media channels have the ``channel-type`` of ``media``. They are used for transport of voice and video. They MUST be attached to a server. The server the channel is placed in is stored in the ``parent-server`` value.
-
-> TODO: How is audio and video going to be transported? Do some research on this.
-
-### Direct message channels
-
-Direct message channels can transport both text and media. They have the same API calls as both text and media channels. They have the ``channel-type`` of ``direct-message``.
-
-Direct message channels MUST NOT be attached to a server. The ``parent-server`` MUST be ignored when paired with direct message channels.
+A channel is a grouping of messages.
 
 # Technical details
 
@@ -257,8 +237,6 @@ Returns information about an account, by ID. If the ID is not an account, it MUS
 
 If the ID does not exist, it MUST return the 404 status code.
 
-This returns an Account object. See details about the Account object in the List of objects with properties for more information.
-
 #### Example output:
 
 ```json
@@ -266,12 +244,14 @@ This returns an Account object. See details about the Account object in the List
 	"id": 1,
 	"type": "object",
 	"object-type": "account",
-	"nickname": "example",
-	"bio": "Test account",
-	"status": "Testing :)",
+	"nickname": "example"
+	"bio": "Test account"
+	"status": "Testing :)"
 	"email": "tester@example.com"
 }
 ```
+
+See details about the Account object in the List of objects with properties for more information.
 
 ### PATCH /api/v1/accounts/$ID
 
@@ -296,16 +276,12 @@ If the ID does not exist, it MUST return the 404 status code.
 	"id": 4,
 	"type": "object",
 	"object-type": "message",
-	"server-id": "3",
-	"creator": "1",
-	"post-date": "0",
+	"server-id": "3"
+	"creator": "1"
+	"post-date": "0"
 	"content": "Testing messages."
 }
 ```
-
-### POST /api/v1/messages
-
-Takes a Message object and posts it to the server.
 
 ## List of objects with properties
 
