@@ -1,61 +1,51 @@
 # The Euphony Project
 
->  The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
->  NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
->  "OPTIONAL" in this document are to be interpreted as described in
->  [RFC2119](https://tools.ietf.org/html/rfc2119).
+> The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+> NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+> "OPTIONAL" in this document are to be interpreted as described in
+> [RFC2119](https://tools.ietf.org/html/rfc2119).
 
 ## Introduction
 
 The Euphony Project is a chat protocol, inspired by Matrix and Discord. It's fully free and can be implemented by anybody. Servers using the protocol are designed to federate, which allows for multiple self-hosted instances to connect to each other.
 
-The main goal of this project is to create a chat platform that is transparent and easy to implement, while retaining many functions that other software does not have (such as servers - groups with channels in them).
+The main goal of this project is to create a chat platform that is transparent and easy to implement, while retaining many functions that other software does not have (such as conferences - groups with channels in them).
 
 ## Keywords
 
 * User - User of an instance.
 * Account - An account on an instance. Only used when mentioning the object type.
 * Instance - The instance (running a Euphony Project compatible server).
-* Server - A group which contains channels. **DO NOT CONFUSE WITH INSTANCES.**
+* Conference - A group which contains channels.
 * Channel - A channel of communication. DMs and group chats are also channels.
-* Action - Actions taking place on the server (see the Actions section for more information).
-* Message - A single message, placed in a channel.
+* Message - A single message, placed in a text channel.
 
 Additional note: all JSON fields that use "..." as the name are intended to be comments and MUST NOT be included in final requests.
 
 ### Example keywords
 
-Note: if only one user/instance/server/action is mentioned in the example, use the full words. Only use these keywords for examples where multiple objects exist.
+Note: if only one user/instance/conference/action is mentioned in the example, use the full words. Only use these keywords for examples where multiple objects exist.
 
 * Ux - User. The x is a number assigned to each user in the example.
 * Ix - Instance. The x is a number assigned to each instance in the example.
-* Sx - Server. The x is a number assigned to each server in the example.
+* Cx - Conference. The x is a number assigned to each conference in the example.
 * Ox - Object. The x is a number assigned to each object in the example.
 
 ## Dates
 
 All dates MUST be stored as time from the UNIX epoch. This prevents date formatting issues and makes them easier to parse.
 
-## Objects and actions
+### Objects and IDs
 
-All objects and actions are assigned a numerical ID. Numerical IDs MUST begin at the value of 0, and increase upon every registered action or object. These IDs are shared between objects and actions, so they MUST NOT overlap.
+Users, servers, channels and messages are objects. 
 
-Each object and action, when retrieved, MUST contain the following values in the request returned by the server alongside its own:
-
-- id (number, contains the object/action's ID)
-- type (string, object or action)
+Every object MUST have a numerical ID, which allows it to be quickly located and accessed. These numerical IDs MUST begin at the value of 0, and increase upon every registered object. Object IDs MUST NOT overlap. You **cannot** change an object's ID once it's been assigned.
 
 Information about IDs can be accessed through
 
+```url
+/api/v1/id/<ID>
 ```
-$domain/api/v1/id/<ID>
-```
-
-where ``<ID>`` is the ID that you want to get information about.
-
-### Objects
-
-Users, servers, channels and messages are objects. Every object MUST have a numerical ID, which allows it to be quickly located and accessed. You **cannot** change an object's ID once it's been assigned. Object IDs MUST NOT overlap.
 
 In the Euphony Project, the main hierarchy of objects is as follows (from largest/most important to smallest/least important):
 
@@ -67,6 +57,13 @@ In the Euphony Project, the main hierarchy of objects is as follows (from larges
 * Attachement (as in, a quote, poll or other kind of embed)
 * Message
 
+Each object, when retrieved, MUST contain the following values in the request returned by the conference alongside its own:
+
+* id (number, contains the object's ID)
+* type (string, MUST be object)
+
+where ``<ID>`` is the ID that you want to get information about.
+
 #### Example
 
 An application wants to get information about an user. In order to do so, it must first find its object ID. Once located, this ID can be used to access information about the user, even if they change their name.
@@ -75,16 +72,16 @@ An application wants to get information about an user. In order to do so, it mus
 
 In order to get information about an object/action based on its ID, you can query the API:
 
-```
-$domain/api/v1/id/<ID>
+```url
+/api/v1/id/<ID>
 ```
 
-where <ID> is the ID you want to get information on. This will return a request that will look as follows:
+where ``<ID>`` is the ID you want to get information on. This will return a request that will look as follows:
 
 ```json
 {
-	"id": 1,
-	"...": "...insert any required values..."
+  "id": 1,
+  "...": "...insert any required values..."
 }
 ```
 
@@ -102,8 +99,8 @@ Each channel can be subscribed to, which means that the remote instance knows th
 
 The public inbox is located at
 
-```
-$domain/api/v1/federation/inbox
+```url
+/api/v1/federation/inbox
 ```
 
 and, upon being queried with a GET request, it MUST return information about the instance (ID 0).
@@ -116,11 +113,11 @@ An example of an ID that was recieved from another instance:
 
 ```json
 {
-	"id": 1,
-	"remote-domain": "$remotedomain",
-	"remote-id": "remoteid",
-	"type": "object",
-	"...": "...insert any required values..."
+  "id": 1,
+  "remote-domain": "$remotedomain",
+  "remote-id": "remoteid",
+  "type": "object",
+  "...": "...insert any required values..."
 }
 ```
 
@@ -138,8 +135,8 @@ In order to ease this process, servers can send a request to another letting the
 
 As such, this concept covers two cases:
 
-- one of the servers drops the connection temporarily, but is still running
-- one of the servers is shut down
+* one of the servers drops the connection temporarily, but is still running
+* one of the servers is shut down
 
 > :warning: Don't send IDs to the remote server that aren't supposed to go it! It's a waste of bandwith and a potential security threat, as bad actors may attempt to intercept information that way.
 
@@ -147,8 +144,8 @@ As such, this concept covers two cases:
 
 When an instance begins to federate with another instance, its ID 0 is copied to
 
-```
-$domain/api/v1/federation/$remotedomain
+```url
+/api/v1/federation/$remotedomain
 ```
 
 where ``$remotedomain`` is the remote instance's domain.
@@ -159,17 +156,17 @@ If queried, this will return the equivalent of the remote server's ID 0 (which c
 
 ```json
 {
-	"id": 0,
-	"type": "object",
-	"object-type": "instance",
-	"...": "...insert instance-specific information here..."
+  "id": 0,
+  "type": "object",
+  "object-type": "instance",
+  "...": "...insert instance-specific information here..."
 }
 ```
 
 Assuming an object/action has federated to the instance, it is possible to retrieve its ID on the server it has federated to using
 
-```
-$domain/api/v1/federation/$remotedomain/ID
+```url
+/api/v1/federation/$remotedomain/ID
 ```
 
 Where ``ID`` is the ID from the remote domain.
@@ -180,10 +177,10 @@ This will automatically locate the right ID and print required information.
 
 ```json
 {
-	"remote-domain": "Domain from which the ID was recieved",
-	"remote-id": "ID on remote server (number)",
-	"id": "ID on local server",
-	"...": "...insert other object/action specific information..."
+  "remote-domain": "Domain from which the ID was recieved",
+  "remote-id": "ID on remote server (number)",
+  "id": "ID on local server",
+  "...": "...insert other object/action specific information..."
 }
 ```
 
@@ -217,7 +214,7 @@ Direct message channels can transport both text and media. They have the same AP
 
 Direct message channels MUST NOT be attached to a server. The ``parent-server`` MUST be ignored when paired with direct message channels.
 
-# Technical details
+___
 
 ## List of valid REST API calls
 
@@ -251,7 +248,7 @@ Returns information about an account, by ID. If the ID is not an account, it MUS
 
 ```json
 {
-	"error": "Not an account"
+  "error": "Not an account"
 }
 ```
 
@@ -259,17 +256,17 @@ If the ID does not exist, it MUST return the 404 status code.
 
 This returns an Account object. See details about the Account object in the List of objects with properties for more information.
 
-#### Example output:
+#### Example output
 
 ```json
 {
-	"id": 1,
-	"type": "object",
-	"object-type": "account",
-	"nickname": "example",
-	"bio": "Test account",
-	"status": "Testing :)",
-	"email": "tester@example.com"
+  "id": 1,
+  "type": "object",
+  "object-type": "account",
+  "nickname": "example",
+  "bio": "Test account",
+  "status": "Testing :)",
+  "email": "tester@example.com"
 }
 ```
 
@@ -283,23 +280,23 @@ Returns information about a message, by ID. If the ID does not belong to a messa
 
 ```json
 {
-	"error": "Not an account"
+  "error": "Not an account"
 }
 ```
 
 If the ID does not exist, it MUST return the 404 status code.
 
-#### Example output:
+#### Example output
 
 ```json
 {
-	"id": 4,
-	"type": "object",
-	"object-type": "message",
-	"server-id": "3",
-	"creator": "1",
-	"post-date": "0",
-	"content": "Testing messages."
+  "id": 4,
+  "type": "object",
+  "object-type": "message",
+  "server-id": "3",
+  "creator": "1",
+  "post-date": "0",
+  "content": "Testing messages."
 }
 ```
 
@@ -316,18 +313,19 @@ This section contains every object with its required values.
 
 ### Instance
 
-#### Public values
+``"object-type": "instance"``
 
 | Key             | Value type | Required? | Require authentication? | Read/write | Federate? | Notes                                                                                 |
 |-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
 | address         | string     | yes       | r: no; w: no                    | r          | yes       | Contains the domain name for the instance. Required for federation.  MUST NOT CHANGE. |
 | server-software | string     | yes       | r: no; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
-| name            | string     | yes       | r: no; w: yes [modify:instance] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
-| description     | string     | yes       | r: no; w: yes [modify:instance] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
+| name            | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
+| description     | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
 
 ### Account
 
-#### Public values
+``"object-type": "account"``
+
 
 - object-type (string, MUST be "account")
 - nickname (string) {r[w]} [account.modify]
