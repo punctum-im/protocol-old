@@ -37,7 +37,7 @@ All dates MUST be stored as time from the UNIX epoch. This prevents date formatt
 
 ### Objects and IDs
 
-Users, servers, channels and messages are objects. 
+Users, conferences, channels and messages are objects.
 
 Every object MUST have a numerical ID, which allows it to be quickly located and accessed. These numerical IDs MUST begin at the value of 0, and increase upon every registered object. Object IDs MUST NOT overlap. You **cannot** change an object's ID once it's been assigned.
 
@@ -51,8 +51,8 @@ In the Euphony Project, the main hierarchy of objects is as follows (from larges
 
 * Instance (running a Euphony Project compatible server) - this MUST have the numerical ID of 0
 * User (somebody who uses the service)
-* Role (servers together certain people in a server)
-* Server (a group containing channels, compare to Discord's servers/guilds)
+* Role (groups together certain people in a conference)
+* Conference (a group containing channels, compare to Discord's servers/guilds)
 * Channel (which contains messages, compare to IRC/Matrix channels or channels in a Discord server/guild)
 * Attachement (as in, a quote, poll or other kind of embed)
 * Message
@@ -123,9 +123,7 @@ An example of an ID that was recieved from another instance:
 
 ### Example
 
-U1 wants to join a server. U1 is on I1, while the server is on I2. I1 isn't subscribed to the server yet, so it sends a request to I2 asking to be subscribed to the server. If I2 doesn't block I1 and I2 is up, I1 will subscribe to the server on I2, thus allowing U1 to communicate with people on the server.
-
-U2 is on I2. U2 sends a message to the server on I2. The server pings every subscribed instance, including I2, sending them the action. I1 gets the action, saves it on itself and sends a confirmation to the server.
+U1 wants to join a conference. U1 is on I1, while the conference is on I2. I1 isn't subscribed to the conference yet, so it sends a request to I2 asking to be subscribed to the server. If I2 doesn't block I1 and I2 is up, I1 will subscribe to the conference on I2, thus allowing U1 to communicate with people in the conference.
 
 ### Stashing
 
@@ -184,27 +182,25 @@ This will automatically locate the right ID and print required information.
 }
 ```
 
-## Servers
+## Conferences
 
-> :warning: DO NOT confuse servers with instances or group DMs!
-
-A server is a group comprising of any amount of text and voice channels. Users can join a server, and roles can be given to them. These roles can have certain permissions assigned to them.
+A conference is a group comprising of any amount of text and voice channels. Users can join a conference, and roles can be given to them. These roles can have certain permissions assigned to them.
 
 ## Channels
 
-Channels are channels of communication that can be nested within servers or stay standalone as group DMs. There are three types of channels: text channels, media channels (voice and video chat) and direct message channels.
+Channels are channels of communication that can be nested within conferences or stay standalone as group DMs. There are three types of channels: text channels, media channels (voice and video chat) and direct message channels.
 
 Channels have the ``object-type`` of ``channel``.
 
 ### Text channels
 
-Text channels have the ``channel-type`` of ``text``. They are capable of storing messages. 
+Text channels have the ``channel-type`` of ``text``. They are capable of storing messages.
 
-Text channels MUST be attached to a server. The server the channel is placed in is stored in the ``parent-server`` value.
+Text channels MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
 
 ### Media channels
 
-Media channels have the ``channel-type`` of ``media``. They are used for transport of voice and video. They MUST be attached to a server. The server the channel is placed in is stored in the ``parent-server`` value.
+Media channels have the ``channel-type`` of ``media``. They are used for transport of voice and video. They MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
 
 > TODO: How is audio and video going to be transported? Do some research on this.
 
@@ -212,7 +208,11 @@ Media channels have the ``channel-type`` of ``media``. They are used for transpo
 
 Direct message channels can transport both text and media. They have the same API calls as both text and media channels. They have the ``channel-type`` of ``direct-message``.
 
-Direct message channels MUST NOT be attached to a server. The ``parent-server`` MUST be ignored when paired with direct message channels.
+Direct message channels MUST NOT be attached to a conference. The ``parent-conference`` MUST be ignored when paired with direct message channels.
+
+## Messages
+
+Messages are single messages in a text channel. They MUST be attached to a text channel, the ID of which is stored in the ``channel-id`` value.
 
 ___
 
@@ -293,7 +293,7 @@ If the ID does not exist, it MUST return the 404 status code.
   "id": 4,
   "type": "object",
   "object-type": "message",
-  "server-id": "3",
+  "channel-id": "3",
   "creator": "1",
   "post-date": "0",
   "content": "Testing messages."
@@ -302,7 +302,7 @@ If the ID does not exist, it MUST return the 404 status code.
 
 ### POST /api/v1/messages
 
-Takes a Message object and posts it to the server.
+Takes a Message object and posts it to the conference.
 
 ## List of objects with properties
 
@@ -350,36 +350,36 @@ This section contains every object with its required values.
 - edit-dates (list with numbers, date, optional) {r}
 - attachement (string, contains link to file with https:// or http:// prefix) {r}
 
-### Server
+### conference
 
 #### Public values
 
-- object-type (string, MUST be "server")
+- object-type (string, MUST be "conference")
 - name (string)
 - description (string)
 - creation-date (number, date)
-- channels (list of numbers, contains IDs for text and voice channels on the server)
-- users (list of numbers, contains IDs of users on the server)
+- channels (list of numbers, contains IDs for text and voice channels on the conference)
+- users (list of numbers, contains IDs of users on the conference)
 
 #### Private values (require scope)
 
 ##### Settings
 
-**Information** [server:info]
+**Information** [conference:info]
 
 - name (string) {r[w]}
 - description (string) {r[w]}
 - icon (string, link to file with https:// or http:// prefix) {r[w]}
-- in-search-index (bool, decides if the server can be found through built-in search tools. The reccomended default is false.) {r[w]}
-- owner (number, ID of owner user) {r, rw with server.changeowner scope}
+- in-search-index (bool, decides if the conference can be found through built-in search tools. The reccomended default is false.) {r[w]}
+- owner (number, ID of owner user) {r, rw with conference.changeowner scope}
 
-**Roles** [server:roles]
+**Roles** [conference:roles]
 
 > :information_source: Note: this scope is also required to view information about individual roles.
 
-- roles (list of numbers, contains IDs of roles on the server)
+- roles (list of numbers, contains IDs of roles on the conference)
 
-**Individual role information** (``$domain/api/v1/server/role/ID``)
+**Individual role information** (``$domain/api/v1/conference/role/ID``)
 
 - object-type (string, MUST be "role")
 - name (string) {r[w]}
@@ -388,4 +388,4 @@ This section contains every object with its required values.
 
 #### Closed values (cannot be requested)
 
-- password (contains server password if one is set)
+- password (contains conference password if one is set)
