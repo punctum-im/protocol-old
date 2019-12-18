@@ -54,7 +54,7 @@ In the Euphony Project, the main hierarchy of objects is as follows (from larges
 * Role (groups together certain people in a conference)
 * Conference (a group containing channels, compare to Discord's servers/guilds)
 * Channel (which contains messages, compare to IRC/Matrix channels or channels in a Discord server/guild)
-* Attachement (as in, a quote, poll or other kind of embed)
+* Attachment (as in, a quote, poll or other kind of embed)
 * Message
 
 Each object, when retrieved, MUST contain the following values in the request returned by the conference alongside its own:
@@ -186,6 +186,24 @@ This will automatically locate the right ID and print required information.
 
 A conference is a group comprising of any amount of text and voice channels. Users can join a conference, and roles can be given to them. These roles can have certain permissions assigned to them.
 
+### Users
+
+When an user joins a conference and they aren't banned, their ID is added to the conference's user list and they have their conference permission set to 1. Each user can then have additional information assigned to their account:
+
+* their conference-specific nickname;
+* the roles they're part of;
+* the permissions they have been assigned;
+* their ban state (banned or not).
+
+#### Banning
+
+An user can be banned from a conference. This means they cannot join or access the conference.
+
+If an user was banned, their ID can still be queried through ``/api/v1/conference/users/ID``, but only contains the following information:
+
+* "banned?" - bool, true
+* "permissions" with the conference bit set to 0
+
 ## Channels
 
 Channels are channels of communication that can be nested within conferences or stay standalone as group DMs. There are three types of channels: text channels, media channels (voice and video chat) and direct message channels.
@@ -209,6 +227,97 @@ Media channels have the ``channel-type`` of ``media``. They are used for transpo
 Direct message channels can transport both text and media. They have the same API calls as both text and media channels. They have the ``channel-type`` of ``direct-message``.
 
 Direct message channels MUST NOT be attached to a conference. The ``parent-conference`` MUST be ignored when paired with direct message channels.
+
+## Attachments
+
+Attachments are objects that can be attached to a message for additional information. The following attachement types are available:
+
+### Quote
+
+```json
+{
+  "attachment-type": "quote",
+  "quoted-message": "id"
+}
+```
+
+Adds a quote to a message. Should be displayed before the message. Can be used as a reply function.
+
+### Media
+
+```json
+{
+  "attachment-type": "media",
+  "media-link": "https://link-to-media/image.png"
+}
+```
+
+Adds media to the message. Should be displayed after the message.
+
+Media is one of the following:
+
+- an image (in which case, it SHOULD be embedded as such)
+- a video (in which case, it SHOULD be embedded as such)
+- a sound file (in which case, it SHOULD be embedded as such)
+- any other file
+
+Any image, video or sound links SHOULD be interpreted as an attachement and embedded accordingly.
+
+## Permissions
+
+Permissions are stored in a single value with numbers, where each number represents a permission set. This value is called a permission map and has the following layout:
+
+``"permissions": 12345``
+
+* 1 - message
+* 2 - channel
+* 3 - conference
+* 4 - roles
+* 5 - user
+
+Permissions can be assigned to a conference, a channel, a role or an user in a conference. The order in which permissions are read and overwritten is as follows (from the least to the most important):
+
+* conference
+* channel
+* role
+* user
+
+The RECCOMENDED initial permission map for an user in a conference is ``21101``.
+
+### List of permission sets
+
+#### Message
+
+* 0 - cannot read or write
+* 1 - can read
+* 2 - can read and write
+* 3 - can pin or delete other user's messages
+
+#### Channel
+
+* 0 - cannot see channel
+* 1 - can see channel, but can't read/write from/to it
+* 2 - can read and write in the channel
+* 3 - can modify channels
+
+#### Conference
+
+* 0 - cannot access the conference (user banned or conference pasword-locked and no/wrong password provided)
+* 1 - can access the conference
+* 2 - can modify the conference
+
+#### Role
+
+* 0 - cannot modify or assign roles
+* 1 - can modify or assign roles
+
+#### User
+
+* 0 - cannot modify nicknames of, kick or ban users
+* 1 - can change their own nickname but can't modify other users
+* 2 - can modify other users' and their own nicknames
+* 3 - can modify other users' and their own nicknames and kick
+* 4 - can modify other users' and their own nicknames, kick and ban
 
 ## Messages
 
@@ -280,7 +389,7 @@ Returns information about a message, by ID. If the ID does not belong to a messa
 
 ```json
 {
-  "error": "Not an account"
+  "error": "Not a message"
 }
 ```
 
@@ -302,7 +411,45 @@ If the ID does not exist, it MUST return the 404 status code.
 
 ### POST /api/v1/messages
 
-Takes a Message object and posts it to the conference.
+Takes a Message object and posts it to the specified channel (specified in the ``channel-id`` value). Returns the ``id`` of the resulting message.
+
+### PATCH /api/v1/messages
+
+Takes a Message object with the ``id`` value set to the message that will be edited. Server-side, this should change the ``edit-date`` variable to the time of edition and the ``edited?`` bool to true.
+
+### POST /api/v1/federation/inbox
+
+Federation inbox. See the Federation section. MUST NOT be GETable.
+
+### GET /api/v1/conference/ID
+
+Returns a Conference object, by ID. If the ID does not belong to a conference, it MUST return:
+
+```json
+{
+  "error": "Not a conference"
+}
+```
+
+If the ID does not exist, it MUST return the 404 status code.
+
+### POST /api/v1/conference
+
+Takes a Conference object and creates it. Returns the ID of the resulting conference.
+
+### GET /api/v1/conference/user/ID
+
+Returns information about the user's nickname, roles and permissions. See the Conferences > Users section for more information.
+
+If the ID does not belong to an account, it MUST return the 404 status code.
+
+If the user does not belong to the conference, it MUST return the 404 status code.
+
+If the ID does not exist, it MUST return the 404 status code.
+
+### PATCH /api/v1/conference/user/ID
+
+Modifies information about an user in a conference.
 
 ## List of objects with properties
 
@@ -344,13 +491,14 @@ This section contains every object with its required values.
 
 - object-type (string, MUST be "message")
 - content (string) {r[w]} [message.edit]
-- channel-id (number, contains ID of the channel) {r}
+- channel-id (number, contains ID of the channel the message is present in) {r}
 - creator (number, contains ID of the account who sent the message) {r}
-- post-date (number, date) {r}
-- edit-dates (list with numbers, date, optional) {r}
-- attachement (string, contains link to file with https:// or http:// prefix) {r}
+- post-date (string, date) {r}
+- edit-date (string, date, optional) {r}
+- edited? (bool)
+- attachment (string, contains link to file with protocol prefix) {r}
 
-### conference
+### Conference
 
 #### Public values
 
