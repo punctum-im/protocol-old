@@ -258,8 +258,8 @@ Categories MUST be attached to a conference. The conference the channel is place
 
 Text channels and direct message channels can store messages. These messages can then be retrieved in two ways: by post date and by ID.
 
-```
-/api/v1/channel/messages/{by-date/by-number}/{date/ID}
+```url
+/api/v1/channel/messages/{by-date/by-id}/{date/ID}
 ```
 
 ## Attachments
@@ -431,7 +431,7 @@ This returns an Account object. See details about the Account object in the List
 
 Modifies information about an account, by name.
 
-### GET /api/v1/messages/$ID
+### GET /api/v1/messages/by-id/$ID
 
 Returns information about a message, by ID. If the ID does not belong to a message, it MUST return:
 
@@ -456,6 +456,22 @@ If the ID does not exist, it MUST return the 404 status code.
   "content": "Testing messages."
 }
 ```
+
+### GET /api/v1/messages/by-time/$MINUTES
+
+Get all messages from X minutes ago. Returns a list of IDs.
+
+#### Example output
+
+```json
+{
+    "messages": [ 1, 2, 3 ]
+}
+```
+
+### GET /api/v1/messages/by-date/YYYY-MM-DD
+
+Get all messages posted since a certain date. Returns a list of IDs, simmilarily to ``/api/v1/messages/by-time``.
 
 ### POST /api/v1/messages
 
