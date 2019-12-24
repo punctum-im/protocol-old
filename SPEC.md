@@ -138,6 +138,24 @@ As such, this concept covers two cases:
 
 > :warning: Don't send IDs to the remote server that aren't supposed to go it! It's a waste of bandwith and a potential security threat, as bad actors may attempt to intercept information that way.
 
+### Requesting resources from another instance
+
+Since REST API endpoints require authentication, servers must request access to information through the following endpoint on the remote server:
+
+```url
+/api/v1/federation/request/...
+```
+
+where ``...`` is the same as any API call you would usually make, without the ``/api/v1/`` prefix.
+
+For example, to request an account by name, you would use:
+
+```url
+/api/v1/federation/request/account/by-name/U1
+```
+
+The remote server will then proceed to send the requested information to the local server's inbox, instead of returning it directly.
+
 ### Accessing information about remote instances
 
 When an instance begins to federate with another instance, its ID 0 is copied to
@@ -210,23 +228,39 @@ Channels are channels of communication that can be nested within conferences or 
 
 Channels have the ``object-type`` of ``channel``.
 
-### Text channels
+### Channel types
+
+#### Text channels
 
 Text channels have the ``channel-type`` of ``text``. They are capable of storing messages.
 
 Text channels MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
 
-### Media channels
+#### Media channels
 
 Media channels have the ``channel-type`` of ``media``. They are used for transport of voice and video. They MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
 
 > TODO: How is audio and video going to be transported? Do some research on this.
 
-### Direct message channels
+#### Direct message channels
 
 Direct message channels can transport both text and media. They have the same API calls as both text and media channels. They have the ``channel-type`` of ``direct-message``.
 
 Direct message channels MUST NOT be attached to a conference. The ``parent-conference`` MUST be ignored when paired with direct message channels.
+
+#### Categories
+
+Categories have the ``channel-type`` of ``category``. They can group together text and media channels in a conference.
+
+Categories MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
+
+### Messages
+
+Text channels and direct message channels can store messages. These messages can then be retrieved in two ways: by post date and by ID.
+
+```
+/api/v1/channel/messages/{by-date/by-number}/{date/ID}
+```
 
 ## Attachments
 
@@ -382,6 +416,20 @@ This returns an Account object. See details about the Account object in the List
 ### PATCH /api/v1/accounts/$ID
 
 Modifies information about an account.
+
+### GET /api/v1/accounts/by-name/$NAME
+
+Returns information about an account, by name. The name MUST be the name of a local user, without the trailing ``@`` and the ``@domain`` suffix.
+
+This can only be used with accounts registered on the server.
+
+If there is no account with such name, it MUST return the 404 status code.
+
+This returns an Account object. See details about the Account object in the List of objects with properties for more information.
+
+### PATCH /api/v1/accounts/by-name/$NAME
+
+Modifies information about an account, by name.
 
 ### GET /api/v1/messages/$ID
 
