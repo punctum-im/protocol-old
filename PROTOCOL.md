@@ -549,6 +549,17 @@ This section contains every object with its required values.
 
 ### Channel
 
+``"object-type": "channel"``
+
+| Key             | Value type | Required? | Require authentication? | Read/write | Federate? | Notes                                                                                 |
+|-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
+| name            | string     | yes       | r: no*; w: yes [channel:modify or xxxxx permissions]| rw         | yes       | Contains the name of the channel. If the channel is a direct message channel with one participant, the name is set to the IDs of the users in the conversations, separated by a space.|
+| description | string     | no        | r: no*; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
+| name            | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
+| description     | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
+
+``* Direct message channels must require prior per-user authentication.``
+
 ### Message
 
 #### Public values

@@ -12,6 +12,6 @@ The Euphony Project is still heavily WIP. Some things may be missing or not expl
 
 ## The Euphony Protocol
 
-The current version of the Euphony Protocol is **Public Draft 1**. It has been released on **26-12-19**.
+The current version of the Euphony Protocol is **Public Draft 1**. It has been released **31-12-2019**.
 
 [Read the protocol.](PROTOCOL.md)
