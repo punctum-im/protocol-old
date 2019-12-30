@@ -140,7 +140,7 @@ As such, this concept covers two cases:
 
 ### Requesting resources from another instance
 
-Since REST API endpoints require authentication, servers must request access to information through the following endpoint on the remote server:
+Servers must request access to information through the following endpoint on the remote server:
 
 ```url
 /api/v1/federation/request/...
@@ -483,11 +483,11 @@ Beside the regular channel values, direct message channels have the following ad
 ___
 
 
-## List of valid REST API calls
+## List of valid REST API methods
 
-This section contains evert REST API call that can be made, alongside a description and expected output.
+This section contains required API methods, alongside a description.
 
-This section is intended for developement purposes only; most of the calls are properly explained above. This list is to be used as a referrence for possible implementations.
+All POST and PATCH methods MUST ignore the ``id`` value, if provided with one.
 
 ### GET /api/v1/instance
 
@@ -499,9 +499,9 @@ See details about the Instance object in the List of objects with properties for
 
 Returns information about the object associated with the ID. If the ID does not exist, it MUST return the 404 status code.
 
-This request MUST require authentication, unless ID 0 is being queried.
+For most IDs, prior authentication is required. See the List of objects with properties for more information about required authentication methods.
 
-Please note that this request does not, and MUST NOT, allow for operations on the ID (such as pushing or patching).
+Please note that ``/api/v1/id/$ID`` MUST NOT be pushed to or patched.
 
 ### GET /api/v1/id/$ID/type
 
@@ -555,7 +555,7 @@ This returns an Account object. See details about the Account object in the List
 
 Modifies information about an account, by name.
 
-### GET /api/v1/messages/by-id/$ID
+### GET /api/v1/messages/$ID
 
 Returns information about a message, by ID. If the ID does not belong to a message, it MUST return:
 
@@ -567,49 +567,21 @@ Returns information about a message, by ID. If the ID does not belong to a messa
 
 If the ID does not exist, it MUST return the 404 status code.
 
-#### Example output
-
-```json
-{
-  "id": 4,
-  "type": "object",
-  "object-type": "message",
-  "channel-id": "3",
-  "creator": "1",
-  "post-date": "0",
-  "content": "Testing messages."
-}
-```
-
-### GET /api/v1/messages/by-time/$MINUTES
-
-Get all messages from X minutes ago. Returns a list of IDs.
-
-#### Example output
-
-```json
-{
-    "messages": [ 1, 2, 3 ]
-}
-```
-
-### GET /api/v1/messages/by-date/YYYY-MM-DD
-
-Get all messages posted since a certain date. Returns a list of IDs, simmilarily to ``/api/v1/messages/by-time``.
+Returns a Message object.
 
 ### POST /api/v1/messages
 
 Takes a Message object and posts it to the specified channel (specified in the ``channel-id`` value). Returns the ``id`` of the resulting message.
 
-### PATCH /api/v1/messages
+### PATCH /api/v1/messages/$ID
 
-Takes a Message object with the ``id`` value set to the message that will be edited. Server-side, this should change the ``edit-date`` variable to the time of edition and the ``edited?`` bool to true.
+Modifies a message. MUST ignore the ``id`` value if a different one is provided. Server-side, this should change the ``edit-date`` variable to the time of edition and set the ``edited?`` bool to true.
 
 ### POST /api/v1/federation/inbox
 
-Federation inbox. See the Federation section. MUST NOT be GETable.
+Federation inbox. See the Federation section.
 
-### GET /api/v1/conference/ID
+### GET /api/v1/conferences/$ID
 
 Returns a Conference object, by ID. If the ID does not belong to a conference, it MUST return:
 
@@ -621,11 +593,11 @@ Returns a Conference object, by ID. If the ID does not belong to a conference, i
 
 If the ID does not exist, it MUST return the 404 status code.
 
-### POST /api/v1/conference
+### POST /api/v1/conferences
 
 Takes a Conference object and creates it. Returns the ID of the resulting conference.
 
-### GET /api/v1/conference/user/ID
+### GET /api/v1/conferences/user/$ID
 
 Returns information about the user's nickname, roles and permissions. See the Conferences > Users section for more information.
 
@@ -635,7 +607,42 @@ If the user does not belong to the conference, it MUST return the 404 status cod
 
 If the ID does not exist, it MUST return the 404 status code.
 
-### PATCH /api/v1/conference/user/ID
+### POST /api/v1/conferences/channel
+
+Creates a channel. Returns the ID of the newly created channel.
+
+### PATCH /api/v1/conferences/$ID/user/$ID
 
 Modifies information about an user in a conference.
 
+### GET /api/v1/channels/$ID
+
+Gets information about a channel, by ID. Returns a Channel object.
+
+### PATCH /api/v1/channels/$ID
+
+Modifies information about a channel.
+
+### GET /api/v1/channel/$ID/messages/by-time/$MINUTES
+
+Get all messages in the specified channel from X minutes ago. Returns a list of IDs.
+
+#### Example output
+
+```json
+{
+    "messages": [ 1, 2, 3 ]
+}
+```
+
+### GET /api/v1/channels/$ID/messages/by-date/ISO8601-compliant-date
+
+Get all messages posted in the specified channel since a certain date. Returns a list of IDs, simmilarily to ``/api/v1/channel/ID/messages/by-time``.
+
+### GET /api/v1/attachments/$ID
+
+Gets information about an attachment.
+
+### POST /api/v1/attachments
+
+Creates an attachment. Returns the ID of the newly created attachment.
