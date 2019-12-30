@@ -361,6 +361,128 @@ Messages are single messages in a text channel. They MUST be attached to a text 
 
 ___
 
+## List of objects with properties
+
+This section contains every object with its required values.
+
+> :information_source: The layout of each property is as follows:
+> name (type, optional description) {read/write permissions (read - r, write - w)}
+
+### Instance
+
+``"object-type": "instance"``
+
+| Key             | Value type | Required? | Require authentication?         | Read/write | Federate? | Notes                                                                                 |
+|-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
+| address         | string     | yes       | r: no; w: no                    | r          | yes       | Contains the domain name for the instance. Required for federation.  MUST NOT CHANGE. |
+| server-software | string     | yes       | r: no; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
+| name            | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
+| description     | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
+
+### Account
+
+``"object-type": "account"``
+
+| Key             | Value type | Required? | Require authentication?         | Read/write | Federate? | Notes                                                                                 |
+|-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
+| username        | string     | yes       | r: no; w: yes [account:modify]  | rw         | yes       | Instancewide username. There MUST NOT be two users with the same username.            |
+| status          | string     | no        | r: no; w: yes [account:modify]  | rw         | yes       | User status.                                                                          |
+| bio             | string     | no        | r: no; w: yes [account:modify]  | rw         | yes       | User bio. Hashtags can be taken as profile tags and used in search engines.           |
+| index?          | bool       | yes       | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.                 |
+| email           | string     | yes       | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                                      |
+
+### Channel
+
+``"object-type": "channel"``
+
+| Key             | Value type | Required? | Require authentication?             | Read/write | Federate? | Notes                                                                                 |
+|-----------------|------------|-----------|-------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
+| name            | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name of the channel. If the channel is a direct message channel with one participant, the name is set to the IDs of the users in the conversations, separated by a space.|
+| description     | string     | no        | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name and version of the used server software.                            |
+| perimssions     | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the permissions for the channel. This is a permission map.                   |
+
+``* Must require prior per-user authentication. Direct message channels require the user to be a part of the direct message. Channels in conferences require the user to join the conference.``
+
+#### Direct message channels
+
+Beside the regular channel values, direct message channels have the following additional values:
+
+| Key             | Value type      | Required? | Require authentication?                              | Read/write | Federate? | Notes                                                                                       |
+|-----------------|-----------------|-----------|------------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------------|
+| members         | list of numbers | yes       | r: yes* (can't write, this is handled by the server) | r          | yes       | Contains the IDs of the members of the direct message.                                      |
+| icon            | string          | yes       | r: yes* w: yes [x3xxx permissions]                   | rw         | yes       | Contains the icon of the direct message. This is a link. Servers MUST provide placeholders. |
+
+``* Must require prior per-user authentication.``
+
+### Message
+
+``"object-type": "message"``
+
+| Key             | Value type | Required? | Require authentication?                                                 | Read/write | Federate? | Notes                                                                              |
+|-----------------|------------|-----------|-------------------------------------------------------------------------|------------|-----------|------------------------------------------------------------------------------------|
+| content         | string     | yes       | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | Message content. Any further writes are counted as edits.                          |
+| attachment      | number     | no        | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | ID of the attachment. Any further writes are counted as edits.                     |
+| parent-channel  | number     | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
+| author          | number     | yes       | r: no                                                                   | r          | yes       | ID of the message author. Assigned by the server at message creation.              |
+| post-date       | string     | yes       | r: no                                                                   | r          | yes       | Date of message creation. Assigned by the server at message creation.              |
+| edit-date       | string     | no        | r: no                                                                   | r          | yes       | Date of last message edit. Assigned by the server at message edit.                 |
+| edited?         | bool       | yes       | r: no                                                                   | r          | yes       | Is the message edited? Defaults to ``false``. Set by the server at message edit.   |
+
+### Conference
+
+``"object-type": "conference"``
+
+| Key           | Value type      | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                          |
+|---------------|-----------------|-----------|-----------------------------------|------------|-----------|------------------------------------------------------------------------------------------------|
+| name          | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Name of the conference.                                                                        |
+| description   | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
+| icon          | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | URL of the conference's icon. Servers MUST provide a placeholder.                              |
+| owner         | number          | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
+| index?        | bool            | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
+| permissions   | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Conference-wide permission set, stored as a permission map.                                    |
+| creation-date | string          | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
+| channels      | list of numbers | yes       | r: no                             | r          | yes       | List of IDs of channels present in the conference. Assigned by the server at channel creation. |
+| users         | list of numbers | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of IDs of users who have joined the conference. Modified by the server when an user joins. |
+| roles         | list of numbers | no        | r: yes [xxx1x permissions]        | r          | yes       | List of IDs of roles present in the conference. Modified by the server when a role is added.   |
+
+### Role
+
+``"object-type": "role"``
+
+| Key           | Value type | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                           |
+|---------------|------------|-----------|-----------------------------------|------------|-----------|-------------------------------------------------------------------------------------------------|
+| name          | string     | yes       | r: no; w: yes [xxx1x permissions] | rw         | yes       | Name of the role.                                                                               |
+| description   | string     | no        | r: no; w: yes [xxx1x permissions] | rw         | yes       | Short description of the role.                                                                  |
+| color         | string     | yes       | r: no; w: yes [xxx1x permissions] | rw         | yes       | Color of the role, in RGB ("R, G, B" (does not support alpha)). Servers MUST provide a default. |
+| permissions   | string     | no        | r: no; w: yes [xxx1x permissions] | rw         | yes       | Permissions for the role, as a permission map.                                                  |
+
+### Attachment
+
+``"object-type": "attachment"``
+
+| Key             | Value type      | Required? | Require authentication?                        | Read/write          | Federate? | Notes                                         |
+|-----------------|-----------------|-----------|------------------------------------------------|---------------------|-----------|-----------------------------------------------|
+| attachment-type | string          | yes       | r: no; w: yes [user needs to be authenticated] | rw (not rewritable) | yes       | Attachment type. See the Attachments section. |
+
+#### Quote
+
+``"attachment-type": "quote"``
+
+| Key            | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                     |
+|----------------|------------|-----------|------------------------------------------------|------------|-----------|---------------------------|
+| quoted-message | number     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
+
+#### Media
+
+``"attachment-type": "media"``
+
+| Key        | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                      |
+|------------|------------|-----------|------------------------------------------------|------------|-----------|----------------------------|
+| media-link | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | URL of the attached media. |
+
+___
+
+
 ## List of valid REST API calls
 
 This section contains evert REST API call that can be made, alongside a description and expected output.
@@ -516,123 +638,4 @@ If the ID does not exist, it MUST return the 404 status code.
 ### PATCH /api/v1/conference/user/ID
 
 Modifies information about an user in a conference.
-
-## List of objects with properties
-
-This section contains every object with its required values.
-
-> :information_source: The layout of each property is as follows:
-> name (type, optional description) {read/write permissions (read - r, write - w)}
-
-### Instance
-
-``"object-type": "instance"``
-
-| Key             | Value type | Required? | Require authentication?         | Read/write | Federate? | Notes                                                                                 |
-|-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| address         | string     | yes       | r: no; w: no                    | r          | yes       | Contains the domain name for the instance. Required for federation.  MUST NOT CHANGE. |
-| server-software | string     | yes       | r: no; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
-| name            | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
-| description     | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
-
-### Account
-
-``"object-type": "account"``
-
-| Key             | Value type | Required? | Require authentication?         | Read/write | Federate? | Notes                                                                                 |
-|-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| username        | string     | yes       | r: no; w: yes [account:modify]  | rw         | yes       | Instancewide username. There MUST NOT be two users with the same username.            |
-| status          | string     | no        | r: no; w: yes [account:modify]  | rw         | yes       | User status.                                                                          |
-| bio             | string     | no        | r: no; w: yes [account:modify]  | rw         | yes       | User bio. Hashtags can be taken as profile tags and used in search engines.           |
-| index?          | bool       | yes       | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.                 |
-| email           | string     | yes       | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                                      |
-
-### Channel
-
-``"object-type": "channel"``
-
-| Key             | Value type | Required? | Require authentication?             | Read/write | Federate? | Notes                                                                                 |
-|-----------------|------------|-----------|-------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| name            | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name of the channel. If the channel is a direct message channel with one participant, the name is set to the IDs of the users in the conversations, separated by a space.|
-| description     | string     | no        | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name and version of the used server software.                            |
-| perimssions     | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the permissions for the channel. This is a permission map.                   |
-
-``* Must require prior per-user authentication. Direct message channels require the user to be a part of the direct message. Channels in conferences require the user to join the conference.``
-
-#### Direct message channels
-
-Beside the regular channel values, direct message channels have the following additional values:
-
-| Key             | Value type      | Required? | Require authentication?                              | Read/write | Federate? | Notes                                                                                       |
-|-----------------|-----------------|-----------|------------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------------|
-| members         | list of numbers | yes       | r: yes* (can't write, this is handled by the server) | r          | yes       | Contains the IDs of the members of the direct message.                                      |
-| icon            | string          | yes       | r: yes* w: yes [x3xxx permissions]                   | rw         | yes       | Contains the icon of the direct message. This is a link. Servers MUST provide placeholders. |
-
-``* Must require prior per-user authentication.``
-
-### Message
-
-``"object-type": "message"``
-
-| Key             | Value type | Required? | Require authentication?                                                 | Read/write | Federate? | Notes                                                                              |
-|-----------------|------------|-----------|-------------------------------------------------------------------------|------------|-----------|------------------------------------------------------------------------------------|
-| content         | string     | yes       | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | Message content. Any further writes are counted as edits.                          |
-| attachment      | number     | no        | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | ID of the attachment. Any further writes are counted as edits.                     |
-| parent-channel  | number     | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
-| author          | number     | yes       | r: no                                                                   | r          | yes       | ID of the message author. Assigned by the server at message creation.              |
-| post-date       | string     | yes       | r: no                                                                   | r          | yes       | Date of message creation. Assigned by the server at message creation.              |
-| edit-date       | string     | no        | r: no                                                                   | r          | yes       | Date of last message edit. Assigned by the server at message edit.                 |
-| edited?         | bool       | yes       | r: no                                                                   | r          | yes       | Is the message edited? Defaults to ``false``. Set by the server at message edit.   |
-
-### Conference
-
-``"object-type": "conference"``
-
-| Key           | Value type      | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                          |
-|---------------|-----------------|-----------|-----------------------------------|------------|-----------|------------------------------------------------------------------------------------------------|
-| name          | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Name of the conference.                                                                        |
-| description   | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
-| icon          | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | URL of the conference's icon. Servers MUST provide a placeholder.                              |
-| owner         | number          | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
-| index?        | bool            | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
-| permissions   | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Conference-wide permission set, stored as a permission map.                                    |
-| creation-date | string          | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
-| channels      | list of numbers | yes       | r: no                             | r          | yes       | List of IDs of channels present in the conference. Assigned by the server at channel creation. |
-| users         | list of numbers | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of IDs of users who have joined the conference. Modified by the server when an user joins. |
-| roles         | list of numbers | no        | r: yes [xxx1x permissions]        | r          | yes       | List of IDs of roles present in the conference. Modified by the server when a role is added.   |
-
-### Role
-
-``"object-type": "role"``
-
-| Key           | Value type | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                           |
-|---------------|------------|-----------|-----------------------------------|------------|-----------|-------------------------------------------------------------------------------------------------|
-| name          | string     | yes       | r: no; w: yes [xxx1x permissions] | rw         | yes       | Name of the role.                                                                               |
-| description   | string     | no        | r: no; w: yes [xxx1x permissions] | rw         | yes       | Short description of the role.                                                                  |
-| color         | string     | yes       | r: no; w: yes [xxx1x permissions] | rw         | yes       | Color of the role, in RGB ("R, G, B" (does not support alpha)). Servers MUST provide a default. |
-| permissions   | string     | no        | r: no; w: yes [xxx1x permissions] | rw         | yes       | Permissions for the role, as a permission map.                                                  |
-
-### Attachment
-
-``"object-type": "attachment"``
-
-| Key             | Value type      | Required? | Require authentication?                        | Read/write          | Federate? | Notes                                         |
-|-----------------|-----------------|-----------|------------------------------------------------|---------------------|-----------|-----------------------------------------------|
-| attachment-type | string          | yes       | r: no; w: yes [user needs to be authenticated] | rw (not rewritable) | yes       | Attachment type. See the Attachments section. |
-
-#### Quote
-
-``"attachment-type": "quote"``
-
-| Key            | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                     |
-|----------------|------------|-----------|------------------------------------------------|------------|-----------|---------------------------|
-| quoted-message | number     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
-
-#### Media
-
-``"attachment-type": "media"``
-
-| Key        | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                      |
-|------------|------------|-----------|------------------------------------------------|------------|-----------|----------------------------|
-| media-link | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | URL of the attached media. |
 
