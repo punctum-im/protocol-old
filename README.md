@@ -15,3 +15,11 @@ The Euphony Project is still heavily WIP. Some things may be missing or not expl
 The current version of the Euphony Protocol is **Public Draft 1**. It has been released **31-12-2019**.
 
 [Read the protocol.](PROTOCOL.md)
+
+## Drywall
+
+As of now, the Drywall server is still under development. The initial preview should be out before the end of January 2020. If you're interested in helping with development (which will be done in Python), contact the project's maintainer.
+
+## Web client
+
+As of now, the web client is still under development. The initial preview should be out before the end of March 2020. If you're interested in helping with development (which will be done in Python), contact the project's maintainer.
