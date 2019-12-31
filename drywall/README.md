@@ -1,6 +1,6 @@
 # drywall
 
-``drywall`` is the example server-side implementation of the Euphony protocol. It is designed to comply with the Euphony protocol. Addendum features may be added, if this server becomes the de-facto standard for Euphony servers (a.k.a. my amateur code won't be rewritten).
+``drywall`` is the refference implementation of the Euphony protocol. It is designed to comply with the Euphony protocol.
 
 ## Why the name ``drywall``?
 
