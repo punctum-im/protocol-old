@@ -1,4 +1,4 @@
-# The Euphony Project
+# The Euphony Protocol
 
 > The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 > NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
@@ -7,7 +7,7 @@
 
 ## Introduction
 
-The Euphony Project is a chat protocol, inspired by Matrix and Discord. It's fully free and can be implemented by anybody. Servers using the protocol are designed to federate, which allows for multiple self-hosted instances to connect to each other.
+The Euphony Protocol is a chat protocol, inspired by Matrix and Discord. It's fully free and can be implemented by anybody. Servers using the protocol are designed to federate, which allows for multiple self-hosted instances to connect to each other.
 
 The main goal of this project is to create a chat platform that is transparent and easy to implement, while retaining many functions that other software does not have (such as conferences - groups with channels in them).
 
@@ -364,9 +364,6 @@ ___
 ## List of objects with properties
 
 This section contains every object with its required values.
-
-> :information_source: The layout of each property is as follows:
-> name (type, optional description) {read/write permissions (read - r, write - w)}
 
 ### Instance
 
