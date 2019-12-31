@@ -1,6 +1,6 @@
 # The Euphony Project
 
-The Euphony Project is a project that aims to create an open communication protocol, with simmilar features to Discord.
+The Euphony Project is a project that aims to create an open communication protocol.
 
 It comprises of three parts:
 
