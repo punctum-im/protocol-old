@@ -35,7 +35,7 @@ Note: if only one user/instance/conference/action is mentioned in the example, u
 
 All dates MUST be stored in the ISO 8601 format. Any dates provided in any values MUST match this format.
 
-### Objects and IDs
+## Objects and IDs
 
 Users, conferences, channels and messages are objects.
 
@@ -57,12 +57,15 @@ In the Euphony Project, the main hierarchy of objects is as follows (from larges
 * Attachment (as in, a quote, poll or other kind of embed)
 * Message
 
-Each object, when retrieved, MUST contain the following values in the request returned by the conference alongside its own:
+Each object, when retrieved, MUST contain the ``id`` value (set as a number) containing the object's ID, and a ``type`` value set to ``"object"``, for example:
 
-* id (number, contains the object's ID)
-* type (string, MUST be object)
-
-where ``<ID>`` is the ID that you want to get information about.
+```json
+{
+	"id": 1,
+	"type": "object",
+	"...": "...insert any additional values..."
+}
+```
 
 #### Example
 
@@ -114,9 +117,8 @@ An example of an ID that was recieved from another instance:
 ```json
 {
   "id": 1,
-  "remote-domain": "$remotedomain",
-  "remote-id": "remoteid",
-  "type": "object",
+  "remote-domain": "remote.domain",
+  "remote-id": 4,
   "...": "...insert any required values..."
 }
 ```
@@ -136,7 +138,7 @@ As such, this concept covers two cases:
 * one of the servers drops the connection temporarily, but is still running
 * one of the servers is shut down
 
-> :warning: Don't send IDs to the remote server that aren't supposed to go it! It's a waste of bandwith and a potential security threat, as bad actors may attempt to intercept information that way.
+> :warning: Don't send IDs to the remote server that aren't supposed to go it! It's a waste of bandwidth and a potential security threat, as bad actors may attempt to intercept information that way.
 
 ### Requesting resources from another instance
 
@@ -213,14 +215,22 @@ When an user joins a conference and they aren't banned, their ID is added to the
 * the permissions they have been assigned;
 * their ban state (banned or not).
 
+This information can be found by querying ``/api/v1/conference/<ID1>/users/<ID2>``, where ``<ID1>`` is the conference's ID and ``<ID2>`` is the user's ID.
+
+This information is stored in an object with the type "conference-user".
+
+See more information about this object in the List of objects with properties.
+
 #### Banning
 
 An user can be banned from a conference. This means they cannot join or access the conference.
 
-If an user was banned, their ID can still be queried through ``/api/v1/conference/users/ID``, but only contains the following information:
+If an user was banned, their ID can still be queried through the API endpoint, but only contains the following information:
 
 * "banned?" - bool, true
 * "permissions" with the conference bit set to 0
+
+These are set by the server at ban time.
 
 ## Channels
 
@@ -442,6 +452,17 @@ Beside the regular channel values, direct message channels have the following ad
 | users         | list of numbers | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of IDs of users who have joined the conference. Modified by the server when an user joins. |
 | roles         | list of numbers | no        | r: yes [xxx1x permissions]        | r          | yes       | List of IDs of roles present in the conference. Modified by the server when a role is added.   |
 
+#### Conference user
+
+``"object-type": "conference-user"``
+
+| Key           | Value type      | Required? | Require authentication?                                           | Read/write | Federate? | Notes                                  |
+|---------------|-----------------|-----------|-------------------------------------------------------------------|------------|-----------|----------------------------------------|
+| nickname      | string          | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's nickname on the conference. |
+| roles         | list of numbers | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | Contains the user's roles' ID.         |
+| permissions   | string          | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's permissions, in a permission map. |
+| banned?       | bool            | no        | r: yes [must be a part of the conference];                        | r          | yes       | Is the user banned? Modified by the server at ban/unban time. |
+
 ### Role
 
 ``"object-type": "role"``
@@ -500,11 +521,15 @@ For most IDs, prior authentication is required. See the List of objects with pro
 
 Please note that ``/api/v1/id/$ID`` MUST NOT be pushed to or patched.
 
+Replace ``$ID`` with the ID.
+
 ### GET /api/v1/id/$ID/type
 
 Returns the type and object-type of an ID. If the ID does not exist, it MUST return the 404 status code.
 
 This request MUST require authentication, unless ID 0 is being queried.
+
+Replace ``$ID`` with the ID.
 
 ### GET /api/v1/accounts/$ID
 
@@ -517,6 +542,8 @@ Returns information about an account, by ID. If the ID is not an account, it MUS
 ```
 
 If the ID does not exist, it MUST return the 404 status code.
+
+Replace ``$ID`` with the account's ID.
 
 This returns an Account object. See details about the Account object in the List of objects with properties for more information.
 
@@ -536,7 +563,7 @@ This returns an Account object. See details about the Account object in the List
 
 ### PATCH /api/v1/accounts/$ID
 
-Modifies information about an account.
+Modifies information about an account. Replace ``$ID`` with the account's ID.
 
 ### GET /api/v1/accounts/by-name/$NAME
 
@@ -574,9 +601,37 @@ Takes a Message object and posts it to the specified channel (specified in the `
 
 Modifies a message. MUST ignore the ``id`` value if a different one is provided. Server-side, this should change the ``edit-date`` variable to the time of edition and set the ``edited?`` bool to true.
 
+Replace ``$ID`` with the ID you want to query.
+
 ### POST /api/v1/federation/inbox
 
 Federation inbox. See the Federation section.
+
+### GET /api/v1/federation/$remotedomain
+
+Returns information about a remote domain. Replace ``$remotedomain`` with the remote domain you want to get information about. See the Federation section for more information.
+
+```json
+{
+  "id": 0,
+  "type": "object",
+  "object-type": "instance",
+  "...": "...insert instance-specific information here..."
+}
+```
+
+### GET /api/v1/federation/$remotedomain/$ID
+
+Returns the contents of the local server's equivalent of the remote server's "$ID". Replace ``$remotedomain`` with the remote server's domain and ``$ID`` with the ID from the remote server. See the Federation section for more information.
+
+```json
+{
+  "remote-domain": "Domain from which the ID was recieved",
+  "remote-id": "ID on remote server (number)",
+  "id": "ID on local server",
+  "...": "...insert other object/action specific information..."
+}
+```
 
 ### GET /api/v1/conferences/$ID
 
@@ -590,11 +645,13 @@ Returns a Conference object, by ID. If the ID does not belong to a conference, i
 
 If the ID does not exist, it MUST return the 404 status code.
 
+Replace ``$ID`` with the conference's ID.
+
 ### POST /api/v1/conferences
 
 Takes a Conference object and creates it. Returns the ID of the resulting conference.
 
-### GET /api/v1/conferences/user/$ID
+### GET /api/v1/conferences/users/$ID
 
 Returns information about the user's nickname, roles and permissions. See the Conferences > Users section for more information.
 
@@ -604,25 +661,29 @@ If the user does not belong to the conference, it MUST return the 404 status cod
 
 If the ID does not exist, it MUST return the 404 status code.
 
+Replace ``$ID`` with the user's ID.
+
 ### POST /api/v1/conferences/channel
 
 Creates a channel. Returns the ID of the newly created channel.
 
-### PATCH /api/v1/conferences/$ID/user/$ID
+### PATCH /api/v1/conferences/$ID/users/$ID
 
 Modifies information about an user in a conference.
 
+### POST /api/
+
 ### GET /api/v1/channels/$ID
 
-Gets information about a channel, by ID. Returns a Channel object.
+Gets information about a channel, by ID. Returns a Channel object. Replace ``$ID`` with the channel's ID.
 
 ### PATCH /api/v1/channels/$ID
 
-Modifies information about a channel.
+Modifies information about a channel. Replace ``$ID`` with the channel's ID.
 
 ### GET /api/v1/channel/$ID/messages/by-time/$MINUTES
 
-Get all messages in the specified channel from X minutes ago. Returns a list of IDs.
+Get all messages in the specified channel from X minutes ago. Returns a list of IDs. Replace ``$ID`` with the channel's ID and ``$MINUTES`` with the amount of minutes.
 
 #### Example output
 
@@ -632,13 +693,13 @@ Get all messages in the specified channel from X minutes ago. Returns a list of 
 }
 ```
 
-### GET /api/v1/channels/$ID/messages/by-date/ISO8601-compliant-date
+### GET /api/v1/channels/$ID/messages/by-date/<ISO8601-compliant-date>
 
-Get all messages posted in the specified channel since a certain date. Returns a list of IDs, simmilarily to ``/api/v1/channel/ID/messages/by-time``.
+Get all messages posted in the specified channel since a certain date. Returns a list of IDs, simmilarily to ``/api/v1/channel/ID/messages/by-time``. Replace ``<ISO8601-compliant-date`` with the date. Replace ``$ID`` with the channel's ID.
 
 ### GET /api/v1/attachments/$ID
 
-Gets information about an attachment.
+Gets information about an attachment. Replace ``$ID`` with the attachment's ID.
 
 ### POST /api/v1/attachments
 
