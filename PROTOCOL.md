@@ -131,12 +131,38 @@ U1 wants to join a conference. U1 is on I1, while the conference is on I2. I1 is
 
 When the remote server can't be contacted, the local server creates a stash list, which contains the ID ranges that have to be sent to the remote server. It pings the remote server every X minutes (reccomended default: 10 minutes) and if it gets a connection, it sends it the stashed requests. If a server is down for more than 7 days, it is considered closed, until any request is recieved back.
 
-In order to ease this process, servers can send a request to another letting them know that they're back online. This triggers an automatic sync that recieves all requests from a stash without having to wait until the remote server is available. It is reccomended that server software checks for connection dropouts and, once identified, waits for the dropout to end, then send the resync request once the connection is available.
+In order to ease this process, servers can send a request to another letting them know that they're back online. This will mark the server as "back online" and tell the remote server to send information to the previously-closed server. It is reccomended that server software checks for connection dropouts and, once identified, waits for the dropout to end, then send the resync request once the connection is available.
 
 As such, this concept covers two cases:
 
 * one of the servers drops the connection temporarily, but is still running
 * one of the servers is shut down
+
+#### Server status requests
+
+Servers can ping each other's federation inboxes in order to figure out if they're up or not. No data is sent; only a regular GET request is made. If information is recieved back, the server is considered up, otherwise it's considered down.
+
+#### Sending stashed IDs
+
+In order to improve general speeds and reduce bandwidth waste, stashed IDs use their own format, which allows them to be sent to the remote server in one request. This format is NOT an object; instead, it uses its own type, named ``stash``. Here is an example stash layout:
+
+```json
+{
+	"type": "stash",
+	"5": [{
+		"id": 5,
+		"type": "object",
+		"...": "...insert any required information..."
+	}],
+	"6": [{
+		"id": 6,
+		"type": "object",
+		"...": "...insert any required information..."
+	}]
+}
+```
+
+Stashes are sent to the remote server's inbox.
 
 > :warning: Don't send IDs to the remote server that aren't supposed to go it! It's a waste of bandwidth and a potential security threat, as bad actors may attempt to intercept information that way.
 
@@ -632,6 +658,10 @@ Returns the contents of the local server's equivalent of the remote server's "$I
   "...": "...insert other object/action specific information..."
 }
 ```
+
+### *** /api/v1/federation/request/...
+
+Requests information from a remote domain. MUST be done from a server. Replace ``...`` with the API request you want to make, and ``***`` with GET/POST/PATCH/etc. See the Federation section for more information.
 
 ### GET /api/v1/conferences/$ID
 
