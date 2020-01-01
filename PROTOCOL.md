@@ -168,7 +168,7 @@ In order to improve general speeds and reduce bandwidth waste, stashed IDs use t
 
 Stashes are sent to the remote server's inbox.
 
-> :warning: Don't send IDs to the remote server that aren't supposed to go it! It's a waste of bandwidth and a potential security threat, as bad actors may attempt to intercept information that way.
+> :warning: Don't send IDs to the remote server that aren't supposed to go to it! It's a waste of bandwidth and a potential security threat, as bad actors may attempt to intercept information that way.
 
 ### Requesting resources from another instance
 
