@@ -11,6 +11,10 @@ The Euphony Protocol is a chat protocol, inspired by Matrix and Discord. It's fu
 
 The main goal of this project is to create a chat platform that is transparent and easy to implement, while retaining many functions that other software does not have (such as conferences - groups with channels in them).
 
+### Recent changes
+
+- cleared up information about stashing - additional things to implement, see the ``Federation`` > ``Stashing`` section.
+
 ## Keywords
 
 * User - User of an instance.
