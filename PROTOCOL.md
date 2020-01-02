@@ -98,7 +98,7 @@ In order to prevent abuse, ALL IDS except for 0 MUST NOT be accessible without p
 
 ## Federation
 
-Each instance MUST have a public inbox (which can be accessed by other servers) and SHOULD have a private outbox (where requests that will be sent to other instances are stashed).
+Each instance MUST have a public inbox (which can be written to by other instances) and SHOULD have a private outbox (where requests that will be sent to other instances are stashed).
 
 Federation works on the following principle:
 
