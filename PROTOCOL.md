@@ -43,7 +43,7 @@ All dates MUST be stored in the ISO 8601 format. Any dates provided in any value
 
 Users, conferences, channels and messages are objects.
 
-Every object MUST have a numerical ID, which allows it to be quickly located and accessed. These numerical IDs MUST begin at the value of 0, and increase upon every registered object. Object IDs MUST NOT overlap. You **cannot** change an object's ID once it's been assigned.
+Every object MUST have a unique ID, which allows it to be quickly located and accessed. Object IDs MUST NOT overlap. You **cannot** change an object's ID once it's been assigned.
 
 Information about IDs can be accessed through
 
