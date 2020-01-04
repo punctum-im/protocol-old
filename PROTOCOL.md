@@ -13,6 +13,10 @@ The main goal of this project is to create a chat platform that is transparent a
 
 ### Recent changes
 
+- cleared up information about API method authentication
+- added API methods for banning, kicking and blocking
+- added API methods for invites
+- added invites, blocks and user-specific information
 - cleared up information about stashing - additional things to implement, see the ``Federation`` > ``Stashing`` section.
 
 ## Keywords
@@ -42,7 +46,6 @@ All dates MUST be stored in the ISO 8601 format. Any dates provided in any value
 ## Objects and IDs
 
 Users, conferences, channels and messages are objects.
-
 
 Every object MUST have a unique ID, which allows it to be quickly located and accessed. These IDs can be strings or numbers, depending on the implementation. Object IDs MUST NOT overlap. You **cannot** change an object's ID once it's been assigned.
 
@@ -233,9 +236,25 @@ This will automatically locate the right ID and print the required information.
 }
 ```
 
+## Users/Accounts
+
+Users are stored as Account objects. An account can own messages, direct message channels and conferences.
+
+### Blocking
+
+Users can block other users.
+
 ## Conferences
 
 A conference is a group comprising of any amount of text and voice channels. Users can join a conference, and roles can be given to them. These roles can have certain permissions assigned to them.
+
+### Invites
+
+Users can join a conference through an invite. Invites can be created through the ``POST /api/v1/conference/<ID>/invites`` API method.
+
+Invites can be listed through the ``GET /api/v1/conference/<ID>/invites`` API method.
+
+Invites are objects. The invite name SHOULD be changeable. There MUST NOT be multiple invites with the same link on one instance.
 
 ### Users
 
@@ -429,6 +448,13 @@ This section contains every object with its required values.
 | index?          | bool       | yes       | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.                 |
 | email           | string     | yes       | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                                      |
 
+#### Currently authenticated account
+
+| Key       | Value type  | Required? | Require authentication?                         | Read/write | Federate? | Notes                                                                                 |
+|-----------|-------------|-----------|-------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
+| friends   | list of IDs | no        | r: yes [user needs to be authenticated]         | r          | no        | Contains IDs of the users the account is friends with. This MUST be handled through friend requests, to prevent users from adding people to their friend list without their prior permission. |
+| blocklist | list of IDs | no        | r: yes, w: yes [user needs to be authenticated] | rw         | no        | Contains IDs of blocked users. |
+
 ### Channel
 
 ``"object-type": "channel"``
@@ -459,9 +485,9 @@ Beside the regular channel values, direct message channels have the following ad
 | Key             | Value type | Required? | Require authentication?                                                 | Read/write | Federate? | Notes                                                                              |
 |-----------------|------------|-----------|-------------------------------------------------------------------------|------------|-----------|------------------------------------------------------------------------------------|
 | content         | string     | yes       | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | Message content. Any further writes are counted as edits.                          |
-| attachment      | number     | no        | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | ID of the attachment. Any further writes are counted as edits.                     |
-| parent-channel  | number     | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
-| author          | number     | yes       | r: no                                                                   | r          | yes       | ID of the message author. Assigned by the server at message creation.              |
+| attachment      | ID         | no        | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | ID of the attachment. Any further writes are counted as edits.                     |
+| parent-channel  | ID         | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
+| author          | ID         | yes       | r: no                                                                   | r          | yes       | ID of the message author. Assigned by the server at message creation.              |
 | post-date       | string     | yes       | r: no                                                                   | r          | yes       | Date of message creation. Assigned by the server at message creation.              |
 | edit-date       | string     | no        | r: no                                                                   | r          | yes       | Date of last message edit. Assigned by the server at message edit.                 |
 | edited?         | bool       | yes       | r: no                                                                   | r          | yes       | Is the message edited? Defaults to ``false``. Set by the server at message edit.   |
@@ -470,29 +496,39 @@ Beside the regular channel values, direct message channels have the following ad
 
 ``"object-type": "conference"``
 
-| Key           | Value type      | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                          |
-|---------------|-----------------|-----------|-----------------------------------|------------|-----------|------------------------------------------------------------------------------------------------|
-| name          | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Name of the conference.                                                                        |
-| description   | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
-| icon          | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | URL of the conference's icon. Servers MUST provide a placeholder.                              |
-| owner         | number          | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
-| index?        | bool            | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
-| permissions   | string          | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Conference-wide permission set, stored as a permission map.                                    |
-| creation-date | string          | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
-| channels      | list of numbers | yes       | r: no                             | r          | yes       | List of IDs of channels present in the conference. Assigned by the server at channel creation. |
-| users         | list of numbers | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of IDs of users who have joined the conference. Modified by the server when a user joins. |
-| roles         | list of numbers | no        | r: yes [xxx1x permissions]        | r          | yes       | List of IDs of roles present in the conference. Modified by the server when a role is added.   |
+| Key           | Value type  | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                          |
+|---------------|-------------|-----------|-----------------------------------|------------|-----------|------------------------------------------------------------------------------------------------|
+| name          | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Name of the conference.                                                                        |
+| description   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
+| icon          | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | URL of the conference's icon. Servers MUST provide a placeholder.                              |
+| owner         | ID          | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
+| index?        | bool        | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
+| permissions   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Conference-wide permission set, stored as a permission map.                                    |
+| creation-date | string      | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
+| channels      | list of IDs | yes       | r: no                             | r          | yes       | List of IDs of channels present in the conference. Assigned by the server at channel creation. |
+| users         | list of IDs | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of IDs of users who have joined the conference. Modified by the server when a user joins. |
+| roles         | list of IDs | no        | r: yes [xxx1x permissions]        | r          | yes       | List of IDs of roles present in the conference. Modified by the server when a role is added.   |
 
 #### Conference user
 
 ``"object-type": "conference-user"``
 
-| Key           | Value type      | Required? | Require authentication?                                           | Read/write | Federate? | Notes                                  |
-|---------------|-----------------|-----------|-------------------------------------------------------------------|------------|-----------|----------------------------------------|
-| nickname      | string          | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's nickname on the conference. |
-| roles         | list of numbers | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | Contains the user's roles' ID.         |
-| permissions   | string          | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's permissions, in a permission map. |
-| banned?       | bool            | no        | r: yes [must be a part of the conference];                        | r          | yes       | Is the user banned? Modified by the server at ban/unban time. |
+| Key           | Value type  | Required? | Require authentication?                                           | Read/write | Federate? | Notes                                  |
+|---------------|-------------|-----------|-------------------------------------------------------------------|------------|-----------|----------------------------------------|
+| nickname      | string      | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's nickname on the conference. |
+| roles         | list of IDs | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | Contains the user's roles' ID.         |
+| permissions   | string      | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's permissions, in a permission map. |
+| banned?       | bool        | no        | r: yes [must be a part of the conference];                        | r          | yes       | Is the user banned? Modified by the server at ban/unban time. |
+
+#### Invite
+
+``"object-type": "invite"``
+
+| Key           | Value type | Required? | Require authentication?           | Read/write | Federate? | Notes                                  |
+|---------------|------------|-----------|-----------------------------------|------------|-----------|----------------------------------------|
+| name          | string     | yes       | r: no, w: yes [xx3xx permissions] | rw         | yes       | Contains the invite's name.            |
+| conference-id | ID         | yes       | r: no                             | r          | yes       | Contains the ID of the conference the invite leads to. MUST NOT be changeable. SHOULD be verified through the ``/api/v1/conference/invites/$INVITEID`` endpoint. |
+| creator       | ID         | yes       | r: no                             | r          | yes       | Contains the ID of the account that created the invite. Assigned by the server at invite creation. |
 
 ### Role
 
@@ -519,7 +555,7 @@ Beside the regular channel values, direct message channels have the following ad
 
 | Key            | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                     |
 |----------------|------------|-----------|------------------------------------------------|------------|-----------|---------------------------|
-| quoted-message | number     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
+| quoted-message | ID         | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
 
 #### Media
 
@@ -537,11 +573,15 @@ This section contains required API methods, alongside a description.
 
 All POST and PATCH methods MUST ignore the ``id`` value if provided with one.
 
+Every method MUST require authentication (user must be logged in), unless specified otherwise.
+
 ### GET /api/v1/instance
 
 Returns ID 0 (information about the instance).
 
 See details about the Instance object in the List of objects with properties for more information.
+
+MUST NOT require authentication.
 
 ### GET /api/v1/id/$ID
 
@@ -552,6 +592,8 @@ For most IDs, prior authentication is required. See the List of objects with pro
 Please note that ``/api/v1/id/$ID`` MUST NOT be pushed to or patched.
 
 Replace ``$ID`` with the ID.
+
+MUST NOT require authentication IF ID 0 is being queried.
 
 ### GET /api/v1/id/$ID/type
 
@@ -612,6 +654,10 @@ Modifies information about an account, by name. Replace ``$NAME`` with the accou
 ### GET /api/v1/accounts
 
 Gets information about the currently authenticated account.
+
+### POST /api/v1/accounts/$ID/block
+
+Blocks the account as the currently authenticated user.
 
 ### GET /api/v1/messages/$ID
 
@@ -685,6 +731,8 @@ If the ID does not exist, it MUST return the 404 status code.
 
 Replace ``$ID`` with the conference's ID.
 
+This MUST NOT require authentication.
+
 ### POST /api/v1/conferences
 
 Takes a Conference object and creates it. Returns the ID of the resulting conference.
@@ -701,15 +749,33 @@ If the ID does not exist, it MUST return the 404 status code.
 
 Replace ``$ID`` with the user's ID.
 
-### POST /api/v1/conferences/channel
+### POST /api/v1/conferences/users/$ID/ban
+
+Bans an user.
+
+### POST /api/v1/conferences/users/$ID/kick
+
+Kicks an user.
+
+### POST /api/v1/conferences/invite
+
+Creates an invite. Returns the invite link.
+
+Optional argument: name
+
+### GET /api/v1/conferences/invite/$ID
+
+Gets information about a conference.
+
+This MUST NOT require authentication.
+
+### POST /api/v1/conferences/$ID/channel
 
 Creates a channel. Returns the ID of the newly created channel.
 
 ### PATCH /api/v1/conferences/$ID/users/$ID
 
 Modifies information about a user in a conference.
-
-### POST /api/
 
 ### GET /api/v1/channels/$ID
 
