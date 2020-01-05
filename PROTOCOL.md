@@ -13,6 +13,7 @@ The main goal of this project is to create a chat platform that is transparent a
 
 ### Recent changes
 
+- added bot accounts
 - cleared up information about API method authentication
 - added API methods for banning, kicking and blocking
 - added API methods for invites
@@ -242,7 +243,15 @@ Users are stored as Account objects. An account can own messages, direct message
 
 ### Blocking
 
+> TODO: Expand on this.
+
 Users can block other users.
+
+### Bots
+
+Bot accounts can be marked as such by setting the ``bot?`` bool to ``true`` and the ``bot-owner`` to the bot owner's account ID.
+
+Unlike normal users, bots can be invited to conferences (through the ``/api/v1/accounts/$ID/invite`` endpoint) and cannot be logged into. Servers SHOULD implement a way to remotely modify the bot's account information.
 
 ## Conferences
 
@@ -440,13 +449,15 @@ This section contains every object with its required values.
 
 ``"object-type": "account"``
 
-| Key             | Value type | Required? | Require authentication?         | Read/write | Federate? | Notes                                                                                 |
-|-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| username        | string     | yes       | r: no; w: yes [account:modify]  | rw         | yes       | Instancewide username. There MUST NOT be two users with the same username.            |
-| status          | string     | no        | r: no; w: yes [account:modify]  | rw         | yes       | User status.                                                                          |
-| bio             | string     | no        | r: no; w: yes [account:modify]  | rw         | yes       | User bio. Hashtags can be taken as profile tags and used in search engines.           |
-| index?          | bool       | yes       | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.                 |
-| email           | string     | yes       | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                                      |
+| Key             | Value type | Required?    | Require authentication?         | Read/write | Federate? | Notes                                                                       |
+|-----------------|------------|--------------|---------------------------------|------------|-----------|-----------------------------------------------------------------------------|
+| username        | string     | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Instance-wide username. There MUST NOT be two users with the same username. |
+| status          | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User status.                                                                |
+| bio             | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User bio. Hashtags can be taken as profile tags and used in search engines. |
+| index?          | bool       | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.       |
+| email           | string     | yes          | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                            |
+| bot?            | bool       | no           | r: no; w: yes [account:modify]  | rw         | yes       | Is the user a bot? See the Accounts > Bots section.                         |
+| bot-owner       | ID         | if bot?=true | r: no; w: yes [account:modify]  | rw         | yes       | The bot's owner.                                                            |
 
 #### Currently authenticated account
 
@@ -636,6 +647,10 @@ This returns an Account object. See details about the Account object in the List
 ### PATCH /api/v1/accounts/$ID
 
 Modifies information about an account. Replace ``$ID`` with the account's ID.
+
+### POST /api/v1/accounts/$ID/invite
+
+If the account is a bot, add it to a conference. Takes, and requires, a "conference-id" value. The requester must have xx3xx permissions on the conference that they want to add the bot to. Replace ``$ID`` with the bot's ID.
 
 ### GET /api/v1/accounts/by-name/$NAME
 
