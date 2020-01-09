@@ -13,11 +13,10 @@ The main goal of this project is to create a chat platform that is transparent a
 
 ### Recent changes
 
-- added bot accounts
+- added stash requests, new API method and new required value for stashes
 - cleared up information about API method authentication
-- added API methods for banning, kicking and blocking
-- added API methods for invites
-- added invites, blocks and user-specific information
+- added API methods for banning, kicking and blocking and invites
+- added invites, blocks, bots and user-specific information
 - cleared up information about stashing - additional things to implement, see the ``Federation`` > ``Stashing`` section.
 
 ## Keywords
@@ -101,6 +100,34 @@ where 1 is the ID you requested.
 
 In order to prevent abuse, ALL IDS except for 0 MUST NOT be accessible without prior authentication.
 
+## Stashes
+
+In order to make requesting large pools of IDs less request-intensive, multiple IDs can be recieved at once using stashes.
+
+In order to improve general speeds and reduce bandwidth waste, stashed IDs use their own format, which allows them to be sent to the remote server in one request. This format is NOT an object; instead, it uses its own type, named ``stash``. Here is an example stash layout:
+
+```json
+{
+ "type": "stash",
+ "original-request": "https://instance.domain/api/v1/stashes/request",
+ "ids": [ 5, 6 ],
+ "5": [{
+ "id": 5,
+ "type": "object",
+ "...": "...insert any required information..."
+ }],
+ "6": [{
+ "id": 6,
+ "type": "object",
+ "...": "...insert any required information..."
+ }]
+}
+```
+
+Stashes are sent to the remote server's inbox.
+
+> :warning: Don't send IDs to the remote server that aren't supposed to go to it! It's a waste of bandwidth and a potential security threat, as bad actors may attempt to intercept information that way.
+
 ## Federation
 
 Each instance MUST have a public inbox (which can be written to by other instances) and SHOULD have a private outbox (where requests that will be sent to other instances are stashed).
@@ -138,7 +165,7 @@ U1 wants to join a conference. U1 is on I1, while the conference is on I2. I1 is
 
 ### Stashing
 
-When the remote server can't be contacted, the local server creates a stash list, which contains the ID ranges that have to be sent to the remote server. It pings the remote server every X minutes (recommended default: 10 minutes) and if it gets a connection, it sends it the stashed requests. If a server is down for more than 7 days, it is considered closed, until any request is received back.
+When the remote server can't be contacted, the local server creates a stash list, which contains the ID ranges that have to be sent to the remote server. It pings the remote server every X minutes (recommended default: 10 minutes) and if it gets a connection, it sends it the stashed requests as a stash. If a server is down for more than 7 days, it is considered closed, until any request is received back.
 
 To ease this process, servers can send a request to another letting them know that they're back online. This will mark the server as "back online" and tell the remote server to send information to the previously-closed server. It is recommended that server software checks for connection dropouts and, once identified, waits for the dropout to end, then send the resync request once the connection is available.
 
@@ -150,30 +177,6 @@ As such, this concept covers two cases:
 #### Server status requests
 
 To check if an instance is available, servers can send a GET request to the instance's inbox. This should return information about the instance. If any information is received, the instance is considered up; otherwise, it's considered down.
-
-#### Sending stashed IDs
-
-In order to improve general speeds and reduce bandwidth waste, stashed IDs use their own format, which allows them to be sent to the remote server in one request. This format is NOT an object; instead, it uses its own type, named ``stash``. Here is an example stash layout:
-
-```json
-{
- "type": "stash",
- "5": [{
- "id": 5,
- "type": "object",
- "...": "...insert any required information..."
- }],
- "6": [{
- "id": 6,
- "type": "object",
- "...": "...insert any required information..."
- }]
-}
-```
-
-Stashes are sent to the remote server's inbox.
-
-> :warning: Don't send IDs to the remote server that aren't supposed to go to it! It's a waste of bandwidth and a potential security threat, as bad actors may attempt to intercept information that way.
 
 ### Requesting resources from another instance
 
@@ -578,7 +581,7 @@ Beside the regular channel values, direct message channels have the following ad
 
 ___
 
-## List of valid REST API methods
+## List of REST API methods
 
 This section contains required API methods, alongside a description.
 
@@ -613,6 +616,12 @@ Returns the type and object-type of an ID. If the ID does not exist, it MUST ret
 This request MUST require authentication unless ID 0 is being queried.
 
 Replace ``$ID`` with the ID.
+
+### POST /api/v1/stash/request
+
+Requires the ``ids`` value, which is a list of IDs that should be requested. For security reasons, this should be limited to about 100 IDs per request, and be ratelimited. Remember to respect the usual authentication required to access the IDs.
+
+Returns a stash.
 
 ### GET /api/v1/accounts/$ID
 
