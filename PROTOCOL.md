@@ -250,7 +250,7 @@ Users are stored as Account objects. An account can own messages, direct message
 
 Users can block other users.
 
-### Bots
+### Bots
 
 Bot accounts can be marked as such by setting the ``bot?`` bool to ``true`` and the ``bot-owner`` to the bot owner's account ID.
 
