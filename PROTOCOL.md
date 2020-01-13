@@ -1,4 +1,4 @@
-# The Euphony Protocol
+# The Falsetto Protocol
 
 > The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 > NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and
@@ -7,7 +7,7 @@
 
 ## Introduction
 
-The Euphony Protocol is a chat protocol, inspired by Matrix and Discord. It's fully free and can be implemented by anybody. Servers using the protocol are designed to federate, which allows for multiple self-hosted instances to connect with each other.
+The Falsetto Protocol is a chat protocol, inspired by Matrix and Discord. It's fully free and can be implemented by anybody. Servers using the protocol are designed to federate, which allows for multiple self-hosted instances to connect with each other.
 
 The main goal of this project is to create a chat platform that is transparent and easy to implement, while retaining many functions that other software does not have (such as conferences - groups with channels in them).
 
@@ -23,7 +23,7 @@ The main goal of this project is to create a chat platform that is transparent a
 
 - User - User of an instance.
 - Account - An account on an instance. Only used when mentioning the object type.
-- Instance - The instance (running a Euphony Project compatible server).
+- Instance - The instance (running a Falsetto Project compatible server).
 - Conference - A group that contains channels.
 - Channel - A channel of communication. DMs and group chats are also channels.
 - Message - A single message, placed in a text channel.
@@ -55,9 +55,9 @@ Information about IDs can be accessed through
 /api/v1/id/<ID>
 ```
 
-In the Euphony Project, the main hierarchy of objects is as follows (from largest/most important to smallest/least important):
+In the Falsetto Project, the main hierarchy of objects is as follows (from largest/most important to smallest/least important):
 
-- Instance (running a Euphony Project compatible server) - this MUST have the numerical ID of 0
+- Instance (running a Falsetto Project compatible server) - this MUST have the numerical ID of 0
 - User (somebody who uses the service)
 - Role (groups together certain people in a conference)
 - Conference (a group containing channels, compare to Discord's servers/guilds)
