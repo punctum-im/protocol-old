@@ -369,6 +369,22 @@ Media is one of the following:
 
 Any image, video or sound links SHOULD be interpreted as an attachment and embedded accordingly.
 
+## Embeds
+
+Embeds are small boxes which contain text, alongside a side-color and an image. Two types of embeds exist: the side-image embed and the main-image embed.
+
+```txt
+__________________________      _________________
+| Title           -------|      | Title         |
+| Description     --IMG--|      | Description   |
+|_________________-------|      | ------------- |
+                                | -----img----- |
+         TYPE 1                 | ------------- |
+                                |_______________|
+
+                                     TYPE 2
+```
+
 ## Permissions
 
 Permissions are stored in a single string value using numbers, where each number represents a permission set. This value is called a permission map and has the following layout:
@@ -579,6 +595,18 @@ Beside the regular channel values, direct message channels have the following ad
 | Key        | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                      |
 |------------|------------|-----------|------------------------------------------------|------------|-----------|----------------------------|
 | media-link | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | URL of the attached media. |
+
+#### Embed
+
+``"attachment-type": "embed"``
+
+| Key         | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                           |
+|-------------|------------|-----------|------------------------------------------------|------------|-----------|---------------------------------|
+| title       | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | The title.                      |
+| description | string     | no        | r: no; w: yes [user needs to be authenticated] | rw         | yes       | The description.                |
+| color       | string     | no        | r: no; w: yes [user needs to be authenticated] | rw         | yes       | The color, in RGB ("R, G, B")   |
+| image       | string     | no        | r: no; w: yes [user needs to be authenticated] | rw         | yes       | The link to the embedded image  |
+| embed-type  | number     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | 1 or 2 (1 - type 1, 2 - type 2) |
 
 ___
 
