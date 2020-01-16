@@ -13,7 +13,7 @@ The main goal of this project is to create a chat platform that is transparent a
 
 ### Recent changes
 
-- added information about embeds, conference folders, message reactions, short-statuses
+- added information about embeds, message reactions, short-statuses
 - added stash requests, new API method and new required value for stashes
 - cleared up information about API method authentication
 - added API methods for banning, kicking and blocking and invites
