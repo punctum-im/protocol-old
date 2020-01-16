@@ -13,11 +13,11 @@ The main goal of this project is to create a chat platform that is transparent a
 
 ### Recent changes
 
+- added information about embeds, conference folders, message reactions, short-statuses
 - added stash requests, new API method and new required value for stashes
 - cleared up information about API method authentication
 - added API methods for banning, kicking and blocking and invites
 - added invites, blocks, bots and user-specific information
-- cleared up information about stashing - additional things to implement, see the ``Federation`` > ``Stashing`` section.
 
 ## Keywords
 
@@ -242,7 +242,7 @@ This will automatically locate the right ID and print the required information.
 
 ## Users/Accounts
 
-Users are stored as Account objects. An account can own messages, direct message channels and conferences.
+Users are stored as Account objects. An account can own messages, direct message channels and conferences. An account can have a custom status, which is a string displayed on their profile when they're online, a bio which is a string displayed on their profile at all times and a short status, which quickly shows the person's status (offline, online, away, do not disturb)
 
 ### Blocking
 
@@ -455,6 +455,7 @@ This section contains every object with its required values.
 | Key             | Value type | Required?    | Require authentication?         | Read/write | Federate? | Notes                                                                       |
 |-----------------|------------|--------------|---------------------------------|------------|-----------|-----------------------------------------------------------------------------|
 | username        | string     | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Instance-wide username. There MUST NOT be two users with the same username. |
+| short-status    | number     | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Short status. 0 - offline, 1 - online, 2 - away, 3 - do not disturb         |
 | status          | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User status.                                                                |
 | bio             | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User bio. Hashtags can be taken as profile tags and used in search engines. |
 | index?          | bool       | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.       |
