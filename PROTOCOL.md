@@ -522,6 +522,7 @@ Beside the regular channel values, direct message channels have the following ad
 | post-date       | string     | yes       | r: no                                                                   | r          | yes       | Date of message creation. Assigned by the server at message creation.              |
 | edit-date       | string     | no        | r: no                                                                   | r          | yes       | Date of last message edit. Assigned by the server at message edit.                 |
 | edited?         | bool       | yes       | r: no                                                                   | r          | yes       | Is the message edited? Defaults to ``false``. Set by the server at message edit.   |
+| reactions       | list of strings | no   | r: no; w: yes [must be able to read the message]                        | rw         | yes       | List of emoji shortcodes.                                                          |
 
 ### Conference
 
