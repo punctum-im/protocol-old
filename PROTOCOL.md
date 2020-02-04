@@ -65,15 +65,17 @@ In the Falsetto Project, the main hierarchy of objects is as follows (from large
 - Attachment (as in, a quote, poll or other kinds of embeds)
 - Message
 
-Each object, when retrieved, MUST contain the ``id`` value (set as a number) containing the object's ID, and a ``type`` value set to ``"object"``, for example:
+Each object, when retrieved, MUST contain the ``id`` value (set as a string) containing the object's ID, and a ``type`` value set to ``"object"``, for example:
 
 ```json
 {
- "id": 1,
+ "id": "1",
  "type": "object",
  "...": "...insert any additional values..."
 }
 ```
+
+Since IDs can be either numbers or strings, all IDs MUST be stored as strings.
 
 ### Example
 
@@ -91,7 +93,7 @@ where ``<ID>`` is the ID you want to get information on. This will return a requ
 
 ```json
 {
- "id": 1,
+ "id": "1",
  "...": "...insert any required values..."
 }
 ```
@@ -112,12 +114,12 @@ In order to improve general speeds and reduce bandwidth waste, stashed IDs use t
  "original-request": "https://instance.domain/api/v1/stashes/request",
  "ids": [ 5, 6 ],
  "5": [{
- "id": 5,
+ "id": "5",
  "type": "object",
  "...": "...insert any required information..."
  }],
  "6": [{
- "id": 6,
+ "id": "6",
  "type": "object",
  "...": "...insert any required information..."
  }]
@@ -152,9 +154,9 @@ An example of an ID that was recieved from another instance:
 
 ```json
 {
- "id": 1,
+ "id": "1",
  "remote-domain": "remote.domain",
- "remote-id": 4,
+ "remote-id": "4",
  "...": "...insert any required values..."
 }
 ```
@@ -212,7 +214,7 @@ When queried, this will return the equivalent of the remote server's ID 0 (which
 
 ```json
 {
- "id": 0,
+ "id": "0",
  "type": "object",
  "object-type": "instance",
  "...": "...insert instance-specific information here..."
@@ -389,7 +391,7 @@ __________________________      _________________
 
 Permissions are stored in a single string value using numbers, where each number represents a permission set. This value is called a permission map and has the following layout:
 
-``"permissions": 12345``
+``"permissions": "12345"``
 
 - 1 - message
 - 2 - channel
@@ -477,14 +479,14 @@ This section contains every object with its required values.
 | index?          | bool       | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.       |
 | email           | string     | yes          | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                            |
 | bot?            | bool       | no           | r: no; w: yes [account:modify]  | rw         | yes       | Is the user a bot? See the Accounts > Bots section.                         |
-| bot-owner       | ID         | if bot?=true | r: no; w: yes [account:modify]  | rw         | yes       | The bot's owner.                                                            |
+| bot-owner       | string     | if bot?=true | r: no; w: yes [account:modify]  | rw         | yes       | The bot's owner.                                                            |
 
 #### Currently authenticated account
 
-| Key       | Value type  | Required? | Require authentication?                         | Read/write | Federate? | Notes                                                                                 |
-|-----------|-------------|-----------|-------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| friends   | list of IDs | no        | r: yes [user needs to be authenticated]         | r          | no        | Contains IDs of the users the account is friends with. This MUST be handled through friend requests, to prevent users from adding people to their friend list without their prior permission. |
-| blocklist | list of IDs | no        | r: yes, w: yes [user needs to be authenticated] | rw         | no        | Contains IDs of blocked users. |
+| Key       | Value type      | Required? | Require authentication?                         | Read/write | Federate? | Notes                                                                                 |
+|-----------|-----------------|-----------|-------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
+| friends   | list of strings | no        | r: yes [user needs to be authenticated]         | r          | no        | Contains IDs of the users the account is friends with. This MUST be handled through friend requests, to prevent users from adding people to their friend list without their prior permission. |
+| blocklist | list of strings | no        | r: yes, w: yes [user needs to be authenticated] | rw         | no        | Contains IDs of blocked users. |
 
 ### Channel
 
@@ -516,9 +518,9 @@ Beside the regular channel values, direct message channels have the following ad
 | Key             | Value type | Required? | Require authentication?                                                 | Read/write | Federate? | Notes                                                                              |
 |-----------------|------------|-----------|-------------------------------------------------------------------------|------------|-----------|------------------------------------------------------------------------------------|
 | content         | string     | yes       | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | Message content. Any further writes are counted as edits.                          |
-| attachment      | ID         | no        | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | ID of the attachment. Any further writes are counted as edits.                     |
-| parent-channel  | ID         | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
-| author          | ID         | yes       | r: no                                                                   | r          | yes       | ID of the message author. Assigned by the server at message creation.              |
+| attachment      | string     | no        | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | ID of the attachment. Any further writes are counted as edits.                     |
+| parent-channel  | string     | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
+| author          | string     | yes       | r: no                                                                   | r          | yes       | ID of the message author. Assigned by the server at message creation.              |
 | post-date       | string     | yes       | r: no                                                                   | r          | yes       | Date of message creation. Assigned by the server at message creation.              |
 | edit-date       | string     | no        | r: no                                                                   | r          | yes       | Date of last message edit. Assigned by the server at message edit.                 |
 | edited?         | bool       | yes       | r: no                                                                   | r          | yes       | Is the message edited? Defaults to ``false``. Set by the server at message edit.   |
@@ -533,7 +535,7 @@ Beside the regular channel values, direct message channels have the following ad
 | name          | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Name of the conference.                                                                        |
 | description   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
 | icon          | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | URL of the conference's icon. Servers MUST provide a placeholder.                              |
-| owner         | ID          | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
+| owner         | string      | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
 | index?        | bool        | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
 | permissions   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Conference-wide permission set, stored as a permission map.                                    |
 | creation-date | string      | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
@@ -559,8 +561,8 @@ Beside the regular channel values, direct message channels have the following ad
 | Key           | Value type | Required? | Require authentication?           | Read/write | Federate? | Notes                                  |
 |---------------|------------|-----------|-----------------------------------|------------|-----------|----------------------------------------|
 | name          | string     | yes       | r: no, w: yes [xx3xx permissions] | rw         | yes       | Contains the invite's name.            |
-| conference-id | ID         | yes       | r: no                             | r          | yes       | Contains the ID of the conference the invite leads to. MUST NOT be changeable. SHOULD be verified through the ``/api/v1/conference/invites/$INVITEID`` endpoint. |
-| creator       | ID         | yes       | r: no                             | r          | yes       | Contains the ID of the account that created the invite. Assigned by the server at invite creation. |
+| conference-id | string     | yes       | r: no                             | r          | yes       | Contains the ID of the conference the invite leads to. MUST NOT be changeable. SHOULD be verified through the ``/api/v1/conference/invites/$INVITEID`` endpoint. |
+| creator       | string     | yes       | r: no                             | r          | yes       | Contains the ID of the account that created the invite. Assigned by the server at invite creation. |
 
 ### Role
 
@@ -587,7 +589,7 @@ Beside the regular channel values, direct message channels have the following ad
 
 | Key            | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                     |
 |----------------|------------|-----------|------------------------------------------------|------------|-----------|---------------------------|
-| quoted-message | ID         | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
+| quoted-message | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
 
 #### Media
 
@@ -673,7 +675,7 @@ This returns an Account object. See details about the Account object in the List
 
 ```json
 {
- "id": 1,
+ "id": "1",
  "type": "object",
  "object-type": "account",
  "nickname": "example",
@@ -747,7 +749,7 @@ Returns information about a remote domain. Replace ``$remotedomain`` with the re
 
 ```json
 {
- "id": 0,
+ "id": "0",
  "type": "object",
  "object-type": "instance",
  "...": "...insert instance-specific information here..."
