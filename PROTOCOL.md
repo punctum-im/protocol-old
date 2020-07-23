@@ -13,11 +13,8 @@ The main goal of this project is to create a chat platform that is transparent a
 
 ### Recent changes
 
-- added information about embeds, message reactions, short-statuses
-- added stash requests, new API method and new required value for stashes
-- cleared up information about API method authentication
-- added API methods for banning, kicking and blocking and invites
-- added invites, blocks, bots and user-specific information
+- cleared up information about which IDs should be used when making remote requests
+- made IDs strings
 
 ## Keywords
 
@@ -241,6 +238,15 @@ This will automatically locate the right ID and print the required information.
  "...": "...insert other object/action specific information..."
 }
 ```
+
+When querying objects by ID from the remote server, the remote ID must be used. However, if you do not have the remote ID but only the local ID, you can use the local ID prefixed with ``OURS_``, for example:
+
+```url
+/api/v1/federation/$remotedomain/remote-id
+/api/v1/federation/$remotedomain/OURS_local-id
+```
+
+Where ``remote-id`` is the remote ID and ``local-id`` is the local ID.
 
 ## Users/Accounts
 
