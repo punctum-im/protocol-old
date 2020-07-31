@@ -461,6 +461,8 @@ ___
 
 This section contains every object with its required values.
 
+> Note: Value type "bool" means a string that has to be either "true" or "false".
+
 ### Instance
 
 ``"object_type": "instance"``
@@ -482,7 +484,7 @@ This section contains every object with its required values.
 | short_status    | number     | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Short status. 0 - offline, 1 - online, 2 - away, 3 - do not disturb         |
 | status          | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User status.                                                                |
 | bio             | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User bio. Hashtags can be taken as profile tags and used in search engines. |
-| index           | bool       | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.       |
+| index           | bool       | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``false`` by default.    |
 | email           | string     | yes          | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                            |
 | bot             | bool       | no           | r: no; w: yes [account:modify]  | rw         | yes       | Is the user a bot? See the Accounts > Bots section.                         |
 | bot_owner       | string     | if bot=true  | r: no; w: yes [account:modify]  | rw         | yes       | The bot's owner.                                                            |
