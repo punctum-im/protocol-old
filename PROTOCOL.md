@@ -54,7 +54,7 @@ Information about IDs can be accessed through
 
 In the Falsetto Project, the main hierarchy of objects is as follows (from largest/most important to smallest/least important):
 
-- Instance (running a Falsetto Project compatible server) - this MUST have the numerical ID of 0
+- Instance (running a Falsetto Project compatible server) - this MUST have the ID of ``"0"``, even if the server uses non-numerical IDs
 - User (somebody who uses the service)
 - Role (groups together certain people in a conference)
 - Conference (a group containing channels, compare to Discord's servers/guilds)
@@ -108,7 +108,7 @@ In order to improve general speeds and reduce bandwidth waste, stashed IDs use t
 ```json
 {
  "type": "stash",
- "original-request": "https://instance.domain/api/v1/stashes/request",
+ "original_request": "https://instance.domain/api/v1/stashes/request",
  "ids": [ 5, 6 ],
  "5": [{
  "id": "5",
@@ -145,15 +145,15 @@ and, upon being queried with a GET request, it MUST return information about the
 
 To send an ID to another server, the ID's content is simply POSTed to the remote instance's inbox.
 
-When a remote object is saved on the local instance, it is assigned a local ID and turns into a regular local object. The remote ID and domain are kept in the ``remote-domain`` and ``remote-id`` values.
+When a remote object is saved on the local instance, it is assigned a local ID and turns into a regular local object. The remote ID and domain are kept in the ``remote_domain`` and ``remote_id`` values.
 
 An example of an ID that was recieved from another instance:
 
 ```json
 {
  "id": "1",
- "remote-domain": "remote.domain",
- "remote-id": "4",
+ "remote_domain": "remote.domain",
+ "remote_id": "4",
  "...": "...insert any required values..."
 }
 ```
@@ -213,7 +213,7 @@ When queried, this will return the equivalent of the remote server's ID 0 (which
 {
  "id": "0",
  "type": "object",
- "object-type": "instance",
+ "object_type": "instance",
  "...": "...insert instance-specific information here..."
 }
 ```
@@ -232,8 +232,8 @@ This will automatically locate the right ID and print the required information.
 
 ```json
 {
- "remote-domain": "Domain from which the ID was recieved",
- "remote-id": "ID on remote server (number)",
+ "remote_domain": "Domain from which the ID was recieved",
+ "remote_id": "ID on remote server (number)",
  "id": "ID on local server",
  "...": "...insert other object/action specific information..."
 }
@@ -260,7 +260,7 @@ Users can block other users.
 
 ### Bots
 
-Bot accounts can be marked as such by setting the ``bot?`` bool to ``true`` and the ``bot-owner`` to the bot owner's account ID.
+Bot accounts can be marked as such by setting the ``bot`` bool to ``true`` and the ``bot_owner`` to the bot owner's account ID.
 
 Unlike normal users, bots can be invited to conferences (through the ``/api/v1/accounts/$ID/invite`` endpoint) and cannot be logged into. Servers SHOULD implement a way to remotely modify the bot's account information.
 
@@ -297,7 +297,7 @@ A user can be banned from a conference. This means they cannot join or access th
 
 If a user was banned, their ID can still be queried through the API endpoint, but only contains the following information:
 
-- "banned?" - bool, true
+- "banned" - bool, true
 - "permissions" with the conference bit set to 0
 
 These are set by the server at ban time.
@@ -306,33 +306,33 @@ These are set by the server at ban time.
 
 Channels are channels of communication that can be nested within conferences or stay standalone as group DMs. There are three types of channels: text channels, media channels (voice and video chat) and direct message channels.
 
-Channels have the ``object-type`` of ``channel``.
+Channels have the ``object_type`` of ``channel``.
 
 ### Channel types
 
 #### Text channels
 
-Text channels have the ``channel-type`` of ``text``. They are capable of storing messages.
+Text channels have the ``channel_type`` of ``text``. They are capable of storing messages.
 
-Text channels MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
+Text channels MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent_conference`` value.
 
 #### Media channels
 
-Media channels have the ``channel-type`` of ``media``. They are used for the transport of voice and video. They MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
+Media channels have the ``channel_type`` of ``media``. They are used for the transport of voice and video. They MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent_conference`` value.
 
 > TODO: How are audio and video going to be transported? Do some research on this.
 
 #### Direct message channels
 
-Direct message channels can transport both text and media. They have the same API calls as both text and media channels. They have the ``channel-type`` of ``direct-message``.
+Direct message channels can transport both text and media. They have the same API calls as both text and media channels. They have the ``channel_type`` of ``direct_message``.
 
-Direct message channels MUST NOT be attached to a conference. The ``parent-conference`` MUST be ignored when paired with direct message channels.
+Direct message channels MUST NOT be attached to a conference. The ``parent_conference`` MUST be ignored when paired with direct message channels.
 
 #### Categories
 
-Categories have the ``channel-type`` of ``category``. They can group text and media channels in a conference.
+Categories have the ``channel_type`` of ``category``. They can group text and media channels in a conference.
 
-Categories MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent-conference`` value.
+Categories MUST be attached to a conference. The conference the channel is placed in is stored in the ``parent_conference`` value.
 
 ### Messages
 
@@ -350,8 +350,8 @@ Attachments are objects that can be attached to a message for additional informa
 
 ```json
 {
- "attachment-type": "quote",
- "quoted-message": "id"
+ "attachment_type": "quote",
+ "quoted_message": "id"
 }
 ```
 
@@ -361,8 +361,8 @@ Adds a quote to a message. Should be displayed before the message. Can be used a
 
 ```json
 {
- "attachment-type": "media",
- "media-link": "https://link-to-media/image.png"
+ "attachment_type": "media",
+ "media_link": "https://link-to-media/image.png"
 }
 ```
 
@@ -453,7 +453,7 @@ Permission maps MUST be stored in strings, to prevent trailing ``0``s from being
 
 ## Messages
 
-Messages are single messages in a text channel. They MUST be attached to a text channel, the ID of which is stored in the ``channel-id`` value.
+Messages are single messages in a text channel. They MUST be attached to a text channel, the ID of which is stored in the ``channel_id`` value.
 
 ___
 
@@ -463,29 +463,29 @@ This section contains every object with its required values.
 
 ### Instance
 
-``"object-type": "instance"``
+``"object_type": "instance"``
 
 | Key             | Value type | Required? | Require authentication?         | Read/write | Federate? | Notes                                                                                 |
 |-----------------|------------|-----------|---------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
 | address         | string     | yes       | r: no; w: no                    | r          | yes       | Contains the domain name for the instance. Required for federation.  MUST NOT CHANGE. |
-| server-software | string     | yes       | r: no; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
+| server_software | string     | yes       | r: no; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
 | name            | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
 | description     | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
 
 ### Account
 
-``"object-type": "account"``
+``"object_type": "account"``
 
 | Key             | Value type | Required?    | Require authentication?         | Read/write | Federate? | Notes                                                                       |
 |-----------------|------------|--------------|---------------------------------|------------|-----------|-----------------------------------------------------------------------------|
 | username        | string     | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Instance-wide username. There MUST NOT be two users with the same username. |
-| short-status    | number     | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Short status. 0 - offline, 1 - online, 2 - away, 3 - do not disturb         |
+| short_status    | number     | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Short status. 0 - offline, 1 - online, 2 - away, 3 - do not disturb         |
 | status          | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User status.                                                                |
 | bio             | string     | no           | r: no; w: yes [account:modify]  | rw         | yes       | User bio. Hashtags can be taken as profile tags and used in search engines. |
-| index?          | bool       | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.       |
+| index           | bool       | yes          | r: no; w: yes [account:modify]  | rw         | yes       | Can the user be indexed in search results? MUST be ``no`` by default.       |
 | email           | string     | yes          | r: yes; w: yes [account:modify] | rw         | no        | User email. Used for logging in.                                            |
-| bot?            | bool       | no           | r: no; w: yes [account:modify]  | rw         | yes       | Is the user a bot? See the Accounts > Bots section.                         |
-| bot-owner       | string     | if bot?=true | r: no; w: yes [account:modify]  | rw         | yes       | The bot's owner.                                                            |
+| bot             | bool       | no           | r: no; w: yes [account:modify]  | rw         | yes       | Is the user a bot? See the Accounts > Bots section.                         |
+| bot_owner       | string     | if bot=true  | r: no; w: yes [account:modify]  | rw         | yes       | The bot's owner.                                                            |
 
 #### Currently authenticated account
 
@@ -496,12 +496,12 @@ This section contains every object with its required values.
 
 ### Channel
 
-``"object-type": "channel"``
+``"object_type": "channel"``
 
 | Key             | Value type | Required? | Require authentication?             | Read/write | Federate? | Notes                                                                                 |
 |-----------------|------------|-----------|-------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| channel-type      | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the type of the channel. Can be ``text``, ``media`` or ``direct-message``. |
-| parent-conference | string     | if channel-type is ``text`` or ``media`` | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the ID of the conference the channel is in. |
+| channel_type      | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the type of the channel. Can be ``text``, ``media`` or ``direct_message``. |
+| parent_conference | string     | if channel-type is ``text`` or ``media`` | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the ID of the conference the channel is in. |
 | name              | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name of the channel. If the channel is a direct message channel with one participant, the name is set to the IDs of the users in the conversations, separated by a space.|
 | description       | string     | no        | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name and version of the used server software.                            |
 | permissions       | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the permissions for the channel. This is a permission map.                   |
@@ -521,22 +521,22 @@ Beside the regular channel values, direct message channels have the following ad
 
 ### Message
 
-``"object-type": "message"``
+``"object_type": "message"``
 
 | Key             | Value type | Required? | Require authentication?                                                 | Read/write | Federate? | Notes                                                                              |
 |-----------------|------------|-----------|-------------------------------------------------------------------------|------------|-----------|------------------------------------------------------------------------------------|
 | content         | string     | yes       | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | Message content. Any further writes are counted as edits.                          |
 | attachment      | string     | no        | r: no; w: yes [must be authenticated as the user who wrote the message] | rw         | yes       | ID of the attachment. Any further writes are counted as edits.                     |
-| parent-channel  | string     | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
+| parent_channel  | string     | yes       | r: no                                                                   | r          | yes       | ID of the channel in which the message has been posted. Assigned by the server at message creation. |
 | author          | string     | yes       | r: no                                                                   | r          | yes       | ID of the message author. Assigned by the server at message creation.              |
-| post-date       | string     | yes       | r: no                                                                   | r          | yes       | Date of message creation. Assigned by the server at message creation.              |
-| edit-date       | string     | no        | r: no                                                                   | r          | yes       | Date of last message edit. Assigned by the server at message edit.                 |
-| edited?         | bool       | yes       | r: no                                                                   | r          | yes       | Is the message edited? Defaults to ``false``. Set by the server at message edit.   |
+| post_date       | string     | yes       | r: no                                                                   | r          | yes       | Date of message creation. Assigned by the server at message creation.              |
+| edit_date       | string     | no        | r: no                                                                   | r          | yes       | Date of last message edit. Assigned by the server at message edit.                 |
+| edited          | bool       | yes       | r: no                                                                   | r          | yes       | Is the message edited? Defaults to ``false``. Set by the server at message edit.   |
 | reactions       | list of strings | no   | r: no; w: yes [must be able to read the message]                        | rw         | yes       | List of emoji shortcodes.                                                          |
 
 ### Conference
 
-``"object-type": "conference"``
+``"object_type": "conference"``
 
 | Key           | Value type  | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                          |
 |---------------|-------------|-----------|-----------------------------------|------------|-----------|------------------------------------------------------------------------------------------------|
@@ -544,16 +544,16 @@ Beside the regular channel values, direct message channels have the following ad
 | description   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
 | icon          | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | URL of the conference's icon. Servers MUST provide a placeholder.                              |
 | owner         | string      | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
-| index?        | bool        | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
+| index         | bool        | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
 | permissions   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Conference-wide permission set, stored as a permission map.                                    |
-| creation-date | string      | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
+| creation_date | string      | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
 | channels      | list of IDs | yes       | r: no                             | r          | yes       | List of IDs of channels present in the conference. Assigned by the server at channel creation. |
 | users         | list of IDs | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of IDs of users who have joined the conference. Modified by the server when a user joins. |
 | roles         | list of IDs | no        | r: yes [xxx1x permissions]        | r          | yes       | List of IDs of roles present in the conference. Modified by the server when a role is added.   |
 
 #### Conference user
 
-``"object-type": "conference-user"``
+``"object_type": "conference_user"``
 
 | Key           | Value type  | Required? | Require authentication?                                           | Read/write | Federate? | Notes                                  |
 |---------------|-------------|-----------|-------------------------------------------------------------------|------------|-----------|----------------------------------------|
@@ -564,17 +564,17 @@ Beside the regular channel values, direct message channels have the following ad
 
 #### Invite
 
-``"object-type": "invite"``
+``"object_type": "invite"``
 
 | Key           | Value type | Required? | Require authentication?           | Read/write | Federate? | Notes                                  |
 |---------------|------------|-----------|-----------------------------------|------------|-----------|----------------------------------------|
 | name          | string     | yes       | r: no, w: yes [xx3xx permissions] | rw         | yes       | Contains the invite's name.            |
-| conference-id | string     | yes       | r: no                             | r          | yes       | Contains the ID of the conference the invite leads to. MUST NOT be changeable. SHOULD be verified through the ``/api/v1/conference/invites/$INVITEID`` endpoint. |
+| conference_id | string     | yes       | r: no                             | r          | yes       | Contains the ID of the conference the invite leads to. MUST NOT be changeable. SHOULD be verified through the ``/api/v1/conference/invites/$INVITEID`` endpoint. |
 | creator       | string     | yes       | r: no                             | r          | yes       | Contains the ID of the account that created the invite. Assigned by the server at invite creation. |
 
 ### Role
 
-``"object-type": "role"``
+``"object_type": "role"``
 
 | Key           | Value type | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                           |
 |---------------|------------|-----------|-----------------------------------|------------|-----------|-------------------------------------------------------------------------------------------------|
@@ -585,31 +585,31 @@ Beside the regular channel values, direct message channels have the following ad
 
 ### Attachment
 
-``"object-type": "attachment"``
+``"object_type": "attachment"``
 
 | Key             | Value type      | Required? | Require authentication?                        | Read/write          | Federate? | Notes                                         |
 |-----------------|-----------------|-----------|------------------------------------------------|---------------------|-----------|-----------------------------------------------|
-| attachment-type | string          | yes       | r: no; w: yes [user needs to be authenticated] | rw (not rewritable) | yes       | Attachment type. See the Attachments section. |
+| attachment_type | string          | yes       | r: no; w: yes [user needs to be authenticated] | rw (not rewritable) | yes       | Attachment type. See the Attachments section. |
 
 #### Quote
 
-``"attachment-type": "quote"``
+``"attachment_type": "quote"``
 
 | Key            | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                     |
 |----------------|------------|-----------|------------------------------------------------|------------|-----------|---------------------------|
-| quoted-message | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
+| quoted_message | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | ID of the quoted message. |
 
 #### Media
 
-``"attachment-type": "media"``
+``"attachment_type": "media"``
 
 | Key        | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                      |
 |------------|------------|-----------|------------------------------------------------|------------|-----------|----------------------------|
-| media-link | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | URL of the attached media. |
+| media_link | string     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | URL of the attached media. |
 
 #### Embed
 
-``"attachment-type": "embed"``
+``"attachment_type": "embed"``
 
 | Key         | Value type | Required? | Require authentication?                        | Read/write | Federate? | Notes                           |
 |-------------|------------|-----------|------------------------------------------------|------------|-----------|---------------------------------|
@@ -617,7 +617,7 @@ Beside the regular channel values, direct message channels have the following ad
 | description | string     | no        | r: no; w: yes [user needs to be authenticated] | rw         | yes       | The description.                |
 | color       | string     | no        | r: no; w: yes [user needs to be authenticated] | rw         | yes       | The color, in RGB ("R, G, B")   |
 | image       | string     | no        | r: no; w: yes [user needs to be authenticated] | rw         | yes       | The link to the embedded image  |
-| embed-type  | number     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | 1 or 2 (1 - type 1, 2 - type 2) |
+| embed_type  | number     | yes       | r: no; w: yes [user needs to be authenticated] | rw         | yes       | 1 or 2 (1 - type 1, 2 - type 2) |
 
 ___
 
@@ -651,7 +651,7 @@ MUST NOT require authentication IF ID 0 is being queried.
 
 ### GET /api/v1/id/$ID/type
 
-Returns the type and object-type of an ID. If the ID does not exist, it MUST return the 404 status code.
+Returns the type and object_type of an ID. If the ID does not exist, it MUST return the 404 status code.
 
 This request MUST require authentication unless ID 0 is being queried.
 
@@ -685,7 +685,7 @@ This returns an Account object. See details about the Account object in the List
 {
  "id": "1",
  "type": "object",
- "object-type": "account",
+ "object_type": "account",
  "nickname": "example",
  "bio": "Test account",
  "status": "Testing :)",
@@ -699,7 +699,7 @@ Modifies information about an account. Replace ``$ID`` with the account's ID.
 
 ### POST /api/v1/accounts/$ID/invite
 
-If the account is a bot, add it to a conference. Takes, and requires, a "conference-id" value. The requester must have xx3xx permissions on the conference that they want to add the bot to. Replace ``$ID`` with the bot's ID.
+If the account is a bot, add it to a conference. Takes, and requires, a "conference_id" value. The requester must have xx3xx permissions on the conference that they want to add the bot to. Replace ``$ID`` with the bot's ID.
 
 ### GET /api/v1/accounts/by-name/$NAME
 
@@ -739,11 +739,11 @@ Returns a Message object.
 
 ### POST /api/v1/messages
 
-Takes a Message object and posts it to the specified channel (specified in the ``channel-id`` value). Returns the ``id`` of the resulting message.
+Takes a Message object and posts it to the specified channel (specified in the ``channel_id`` value). Returns the ``id`` of the resulting message.
 
 ### PATCH /api/v1/messages/$ID
 
-Modifies a message. MUST ignore the ``id`` value if a different one is provided. Server-side, this should change the ``edit-date`` variable to the time of edition and set the ``edited?`` bool to true.
+Modifies a message. MUST ignore the ``id`` value if a different one is provided. Server-side, this should change the ``edit_date`` variable to the time of edition and set the ``edited`` bool to true.
 
 Replace ``$ID`` with the ID you want to query.
 
@@ -759,7 +759,7 @@ Returns information about a remote domain. Replace ``$remotedomain`` with the re
 {
  "id": "0",
  "type": "object",
- "object-type": "instance",
+ "object_type": "instance",
  "...": "...insert instance-specific information here..."
 }
 ```
@@ -770,8 +770,8 @@ Returns the contents of the local server's equivalent of the remote server's "$I
 
 ```json
 {
- "remote-domain": "Domain from which the ID was recieved",
- "remote-id": "ID on remote server (number)",
+ "remote_domain": "Domain from which the ID was recieved",
+ "remote_id": "ID on remote server (number)",
  "id": "ID on local server",
  "...": "...insert other object/action specific information..."
 }
