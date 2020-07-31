@@ -500,9 +500,11 @@ This section contains every object with its required values.
 
 | Key             | Value type | Required? | Require authentication?             | Read/write | Federate? | Notes                                                                                 |
 |-----------------|------------|-----------|-------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| name            | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name of the channel. If the channel is a direct message channel with one participant, the name is set to the IDs of the users in the conversations, separated by a space.|
-| description     | string     | no        | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name and version of the used server software.                            |
-| perimssions     | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the permissions for the channel. This is a permission map.                   |
+| channel-type      | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the type of the channel. Can be ``text``, ``media`` or ``direct-message``. |
+| parent-conference | string     | if channel-type is ``text`` or ``media`` | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the ID of the conference the channel is in. |
+| name              | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name of the channel. If the channel is a direct message channel with one participant, the name is set to the IDs of the users in the conversations, separated by a space.|
+| description       | string     | no        | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the name and version of the used server software.                            |
+| permissions       | string     | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the permissions for the channel. This is a permission map.                   |
 
 ``* Must require prior per-user authentication. Direct message channels require the user to be a part of the direct message. Channels in conferences require the user to join the conference.``
 
