@@ -287,7 +287,7 @@ When a user joins a conference and they aren't banned, their ID is added to the 
 
 This information can be found by querying ``/api/v1/conference/<ID1>/users/<ID2>``, where ``<ID1>`` is the conference's ID and ``<ID2>`` is the user's ID.
 
-This information is stored in an object with the type "conference-user".
+This information is stored in an object with the type "conference_user".
 
 See more information about this object in the List of objects with properties.
 
@@ -559,6 +559,7 @@ Beside the regular channel values, direct message channels have the following ad
 
 | Key           | Value type  | Required? | Require authentication?                                           | Read/write | Federate? | Notes                                  |
 |---------------|-------------|-----------|-------------------------------------------------------------------|------------|-----------|----------------------------------------|
+| user_id       | string      | no        | r: ues [must be a part of the conference]; w: yes [xxxx2 and up]; | r          | yes       | The user's ID on the local server (when federating, set this to the ID that the user has on your server). |
 | nickname      | string      | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's nickname on the conference. |
 | roles         | list of IDs | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | Contains the user's roles' ID.         |
 | permissions   | string      | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's permissions, in a permission map. |
