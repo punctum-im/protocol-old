@@ -543,7 +543,7 @@ Beside the regular channel values, direct message channels have the following ad
 | Key           | Value type  | Required? | Require authentication?           | Read/write | Federate? | Notes                                                                                          |
 |---------------|-------------|-----------|-----------------------------------|------------|-----------|------------------------------------------------------------------------------------------------|
 | name          | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Name of the conference.                                                                        |
-| description   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
+| description   | string      | no        | r: no; w: yes [xx3xx permissions] | rw         | yes       | Description of the conference.                                                                 |
 | icon          | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | URL of the conference's icon. Servers MUST provide a placeholder.                              |
 | owner         | string      | yes       | r: no; w: yes [user needs to be authenticated and be the owner of the conference] | rw | yes | ID of the conference's owner. MUST be an account. Initially assigned at conference creation by the server. |
 | index         | bool        | yes       | r: no; w: yes [user needs to be owner] | rw    | yes       | Should the conference be indexed in search results? SHOULD default to ``false``.               |
