@@ -108,8 +108,7 @@ In order to improve general speeds and reduce bandwidth waste, stashed IDs use t
 ```json
 {
  "type": "stash",
- "original_request": "https://instance.domain/api/v1/stashes/request",
- "ids": [ 5, 6 ],
+ "id_list": [ "5", "6" ],
  "5": [{
  "id": "5",
  "type": "object",
@@ -123,7 +122,7 @@ In order to improve general speeds and reduce bandwidth waste, stashed IDs use t
 }
 ```
 
-Stashes are sent to the remote server's inbox.
+Stashes are returned as regular JSON objects.
 
 > :warning: Don't send IDs to the remote server that aren't supposed to go to it! It's a waste of bandwidth and a potential security threat, as bad actors may attempt to intercept information that way.
 
@@ -654,27 +653,29 @@ MUST NOT require authentication IF ID 0 is being queried.
 
 ### GET /api/v1/id/$ID/type
 
-Returns the type and object_type of an ID. If the ID does not exist, it MUST return the 404 status code.
+Returns the ``id``, ``type``, ``object_type`` and any other applicable type variables of an object with a certain ID. If the ID does not exist, it MUST return the 404 status code.
 
 This request MUST require authentication unless ID 0 is being queried.
 
 Replace ``$ID`` with the ID.
 
-### POST /api/v1/stash/request
+### GET /api/v1/stash/request
 
-Requires the ``ids`` value, which is a list of IDs that should be requested. For security reasons, this should be limited to about 100 IDs per request, and be ratelimited. Remember to respect the usual authentication required to access the IDs.
+Requires the ``id_list`` value, which is a list of IDs that should be requested. For security reasons, this should be limited to about 100 IDs per request, and be ratelimited. The server MUST respect the usual authentication required to access the IDs.
+
+Data MUST be sent in JSON format and have the ``Content-Type`` of ``application/json``.
+
+```json
+{
+  "id_list": [ "1", "2", "3" ]
+}
+```
 
 Returns a stash.
 
 ### GET /api/v1/accounts/$ID
 
-Returns information about an account, by ID. If the ID is not an account, it MUST return:
-
-```json
-{
- "error": "Not an account"
-}
-```
+Returns information about an account, by ID. If the ID is not an account, it MUST return the 400 status code.
 
 If the ID does not exist, it MUST return the 404 status code.
 
@@ -728,13 +729,7 @@ Blocks the account as the currently authenticated user.
 
 ### GET /api/v1/messages/$ID
 
-Returns information about a message, by ID. If the ID does not belong to a message, it MUST return:
-
-```json
-{
- "error": "Not a message"
-}
-```
+Returns information about a message, by ID. If the ID does not belong to a message, it MUST return the 400 status code.
 
 If the ID does not exist, it MUST return the 404 status code.
 
@@ -786,13 +781,7 @@ Requests information from a remote domain. MUST be done from a server. Replace `
 
 ### GET /api/v1/conferences/$ID
 
-Returns a Conference object, by ID. If the ID does not belong to a conference, it MUST return:
-
-```json
-{
- "error": "Not a conference"
-}
-```
+Returns a Conference object, by ID. If the ID does not belong to a conference, it MUST return the 400 status code.
 
 If the ID does not exist, it MUST return the 404 status code.
 
@@ -846,7 +835,9 @@ Modifies information about a user in a conference.
 
 ### GET /api/v1/channels/$ID
 
-Gets information about a channel, by ID. Returns a Channel object. Replace ``$ID`` with the channel's ID.
+Gets information about a channel, by ID. Returns a Channel object. If the ID does not belong to a channel, this MUST return the 400 status code.
+
+Replace ``$ID`` with the channel's ID.
 
 ### PATCH /api/v1/channels/$ID
 
