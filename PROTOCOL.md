@@ -866,7 +866,7 @@ Get all messages in the specified channel from X minutes ago. Returns a list of 
 
 ### GET /api/v1/channels/$ID/messages/by-date/<ISO8601-compliant-date>
 
-Get all messages posted in the specified channel beginning at a certain date. Returns a list of IDs, similarily to ``/api/v1/channel/ID/messages/by-time``. Replace ``<ISO8601-compliant-date`` with the date. Replace ``$ID`` with the channel's ID.
+Get all messages posted in the specified channel beginning at a certain date. Returns a list of IDs, similarily to ``/api/v1/channel/ID/messages/by-time``. Replace ``<ISO8601-compliant-date>`` with the date. Replace ``$ID`` with the channel's ID.
 
 ### GET /api/v1/attachments/$ID
 
