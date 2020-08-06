@@ -639,6 +639,10 @@ See details about the Instance object in the List of objects with properties for
 
 MUST NOT require authentication.
 
+### POST /api/v1/id
+
+Takes an object and adds it to the server. Returns the object. MUST return 400 if the ID exists. Server MUST make sure that no extra variables are being added, and the ``id`` and ``type`` are not being overwritten.
+
 ### GET /api/v1/id/$ID
 
 Returns information about the object associated with the ID. If the ID does not exist, it MUST return the 404 status code.
@@ -650,6 +654,10 @@ Please note that ``/api/v1/id/$ID`` MUST NOT be pushed to or patched.
 Replace ``$ID`` with the ID.
 
 MUST NOT require authentication IF ID 0 is being queried.
+
+### PATCH /api/v1/id/$ID
+
+Takes an object's values and applies them to the object with the target ID. Returns the object. MUST return 400 if the ID exists. Server MUST make sure that no extra variables are being added, and the ``id``. ``type`` and ``object_typr`` are not being overwritten.
 
 ### GET /api/v1/id/$ID/type
 
@@ -737,7 +745,8 @@ Returns a Message object.
 
 ### POST /api/v1/messages
 
-Takes a Message object and posts it to the specified channel (specified in the ``channel_id`` value). Returns the ``id`` of the resulting message.
+Takes a Message object and posts it to the specified channel (specified in the ``channel_id`` value) as the 
+currently authenticated user. Returns the ``id`` of the resulting message.
 
 ### PATCH /api/v1/messages/$ID
 
