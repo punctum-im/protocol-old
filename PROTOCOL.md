@@ -109,16 +109,16 @@ In order to improve general speeds and reduce bandwidth waste, stashed IDs use t
 {
  "type": "stash",
  "id_list": [ "5", "6" ],
- "5": [{
+ "5": {
  "id": "5",
  "type": "object",
  "...": "...insert any required information..."
- }],
- "6": [{
+ },
+ "6": {
  "id": "6",
  "type": "object",
  "...": "...insert any required information..."
- }]
+ }
 }
 ```
 
