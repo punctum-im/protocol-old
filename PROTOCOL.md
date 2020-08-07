@@ -854,13 +854,21 @@ Modifies information about a channel. Replace ``$ID`` with the channel's ID.
 
 ### GET /api/v1/channel/$ID/messages/by-time/$MINUTES
 
-Get all messages in the specified channel from X minutes ago. Returns a list of IDs. Replace ``$ID`` with the channel's ID and ``$MINUTES`` with the number of minutes.
+Get all messages in the specified channel from X minutes ago. Returns Message objects. Replace ``$ID`` with the channel's ID and ``$MINUTES`` with the number of minutes.
 
 #### Example output
 
 ```json
 {
- "messages": [ 1, 2, 3 ]
+  "id1": {
+	"author_id": "id",
+    "content": "content",
+	"post_date": "x",
+	"edited": "false"
+  },
+  "id2": {
+    "...": "..."
+  }
 }
 ```
 
