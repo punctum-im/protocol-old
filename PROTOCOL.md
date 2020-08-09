@@ -515,8 +515,8 @@ Beside the regular channel values, direct message channels have the following ad
 
 | Key             | Value type      | Required? | Require authentication?                              | Read/write | Federate? | Notes                                                                                       |
 |-----------------|-----------------|-----------|------------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------------|
-| members         | list of numbers | yes       | r: yes* (can't write, this is handled by the server) | r          | yes       | Contains the IDs of the members of the direct message.                                      |
-| icon            | string          | yes       | r: yes* w: yes [x3xxx permissions]                   | rw         | yes       | Contains the icon of the direct message. This is a link. Servers MUST provide placeholders. |
+| members         | list of numbers | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the IDs of the members of the direct message.                                      |
+| icon            | string          | yes       | r: yes*; w: yes [x3xxx permissions]                   | rw         | yes       | Contains the icon of the direct message. This is a link. Servers MUST provide placeholders. |
 
 ``* Must require prior per-user authentication.``
 
