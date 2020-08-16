@@ -471,7 +471,7 @@ This section contains every object with its required values.
 | address         | string     | yes       | r: no; w: no                    | r          | yes       | Contains the domain name for the instance. Required for federation.  MUST NOT CHANGE. |
 | server_software | string     | yes       | r: no; w: no                    | r          | yes       | Contains the name and version of the used server software.                            |
 | name            | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the name of the server. This can be changed by an user.                      |
-| description     | string     | yes       | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
+| description     | string     | no        | r: no; w: yes [instance:modify] | r[w]       | yes       | Contains the description of the server. This can be changed by an user.               |
 
 ### Account
 
