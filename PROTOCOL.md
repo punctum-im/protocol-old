@@ -492,8 +492,8 @@ This section contains every object with its required values.
 
 | Key       | Value type      | Required? | Require authentication?                         | Read/write | Federate? | Notes                                                                                 |
 |-----------|-----------------|-----------|-------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------|
-| friends   | list of strings | no        | r: yes [user needs to be authenticated]         | r          | no        | Contains IDs of the users the account is friends with. This MUST be handled through friend requests, to prevent users from adding people to their friend list without their prior permission. |
-| blocklist | list of strings | no        | r: yes, w: yes [user needs to be authenticated] | rw         | no        | Contains IDs of blocked users. |
+| friends   | list of IDs | no        | r: yes [user needs to be authenticated]         | r          | no        | Contains IDs of the users the account is friends with. This MUST be handled through friend requests, to prevent users from adding people to their friend list without their prior permission. |
+| blocklist | list of IDs | no        | r: yes, w: yes [user needs to be authenticated] | rw         | no        | Contains IDs of blocked users. |
 
 ### Channel
 
@@ -515,10 +515,10 @@ This section contains every object with its required values.
 
 Beside the regular channel values, direct message channels have the following additional values:
 
-| Key             | Value type      | Required? | Require authentication?                              | Read/write | Federate? | Notes                                                                                       |
-|-----------------|-----------------|-----------|------------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------------|
-| members         | list of numbers | yes       | r: yes*; w: yes [x3xxx permissions] | rw         | yes       | Contains the IDs of the members of the direct message.                                      |
-| icon            | string          | yes       | r: yes*; w: yes [x3xxx permissions]                   | rw         | yes       | Contains the icon of the direct message. This is a link. Servers MUST provide placeholders. |
+| Key             | Value type  | Required? | Require authentication?                              | Read/write | Federate? | Notes                                                                                       |
+|-----------------|-------------|-----------|------------------------------------------------------|------------|-----------|---------------------------------------------------------------------------------------------|
+| members         | list of IDs | yes       | r: yes*; w: yes [x3xxx permissions]                  | rw         | yes       | Contains the IDs of the members of the direct message.                                      |
+| icon            | string      | yes       | r: yes*; w: yes [x3xxx permissions]                  | rw         | yes       | Contains the icon of the direct message. This is a link. Servers MUST provide placeholders. |
 
 ``* Must require prior per-user authentication.``
 
