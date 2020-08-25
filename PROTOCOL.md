@@ -560,10 +560,10 @@ Beside the regular channel values, direct message channels have the following ad
 
 | Key           | Value type  | Required? | Require authentication?                                           | Read/write | Federate? | Notes                                  |
 |---------------|-------------|-----------|-------------------------------------------------------------------|------------|-----------|----------------------------------------|
-| user_id       | string      | no        | r: ues [must be a part of the conference]; w: yes [xxxx2 and up]; | r          | yes       | The user's ID on the local server (when federating, set this to the ID that the user has on your server). |
+| user_id       | string      | yes       | r: ues [must be a part of the conference]; w: yes [xxxx2 and up]; | r          | yes       | The user's ID on the local server (when federating, set this to the ID that the user has on your server). |
 | nickname      | string      | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's nickname on the conference. |
 | roles         | list of IDs | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | Contains the user's roles' ID.         |
-| permissions   | string      | no        | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's permissions, in a permission map. |
+| permissions   | string      | yes       | r: yes [must be a part of the conference]; w: yes [xxxx2 and up]; | rw         | yes       | The user's permissions, in a permission map. |
 | banned        | bool        | no        | r: yes [must be a part of the conference];                        | r          | yes       | Is the user banned? Modified by the server at ban/unban time. |
 
 #### Invite
