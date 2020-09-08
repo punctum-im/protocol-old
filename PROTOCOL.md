@@ -338,7 +338,7 @@ Categories MUST be attached to a conference. The conference the channel is place
 Text channels and direct message channels can store messages. These messages can then be retrieved in two ways: by post date and by ID.
 
 ```url
-/api/v1/channel/messages/{by-date/by-id}/{date/ID}
+/api/v1/channels/messages/{by-date/by-id}/{date/ID}
 ```
 
 ## Attachments
@@ -854,7 +854,11 @@ Replace ``$ID`` with the channel's ID.
 
 Modifies information about a channel. Replace ``$ID`` with the channel's ID.
 
-### GET /api/v1/channel/$ID/messages/by-time/$MINUTES
+### POST /api/v1/channels/$ID/messages/post
+
+Takes a message object and posts it in the given channel, regardless of what the ``parent_channel`` variable contains.
+
+### GET /api/v1/channels/$ID/messages/by-time/$MINUTES
 
 Get all messages in the specified channel from X minutes ago. Returns Message objects. Replace ``$ID`` with the channel's ID and ``$MINUTES`` with the number of minutes.
 
