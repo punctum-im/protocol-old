@@ -452,7 +452,7 @@ Permission maps MUST be stored in strings, to prevent trailing ``0``s from being
 
 ## Messages
 
-Messages are single messages in a text channel. They MUST be attached to a text channel, the ID of which is stored in the ``channel_id`` value.
+Messages are single messages in a text channel. They MUST be attached to a text channel, the ID of which is stored in the ``parent_channel`` value.
 
 ___
 
@@ -747,7 +747,7 @@ Returns a Message object.
 
 ### POST /api/v1/messages
 
-Takes a Message object and posts it to the specified channel (specified in the ``channel_id`` value) as the 
+Takes a Message object and posts it to the specified channel (specified in the ``parent_channel`` value) as the 
 currently authenticated user. Returns the ``id`` of the resulting message.
 
 ### PATCH /api/v1/messages/$ID
