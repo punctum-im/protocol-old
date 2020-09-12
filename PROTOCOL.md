@@ -132,7 +132,13 @@ Each instance MUST have a public inbox (which can be written to by other instanc
 
 Federation works on the following principle:
 
-Each channel can be subscribed to, which means that the remote instance knows that it has to send data to another. Instances stash content that has to be sent to other instances' inboxes in a private outbox.
+Every channel and conference can be subscribed to, which means that the remote instance knows that it has to send data to another instance. To subscribe to a channel or conference, the endpoint
+
+```url
+/api/v1/federation/subscribe/<id>
+```
+
+can be used. Instances stash content that has to be sent to other instances' inboxes in a private outbox.
 
 The inbox is located at
 
@@ -142,9 +148,9 @@ The inbox is located at
 
 and, upon being queried with a GET request, it MUST return information about the instance (ID 0).
 
-To send an ID to another server, the ID's content is simply POSTed to the remote instance's inbox.
+To send an object to another server, the object's content is simply POSTed to the remote instance's inbox.
 
-When a remote object is saved on the local instance, it is assigned a local ID and turns into a regular local object. The remote ID and domain are kept in the ``remote_domain`` and ``remote_id`` values.
+When a remote object is saved on the local instance, it is assigned a local ID and turns into a regular local object. The remote object's ID and domain are kept in the ``remote_domain`` and ``remote_id`` values. These values can be used to determine whether the object came from a remote instance.
 
 An example of an ID that was recieved from another instance:
 
@@ -789,6 +795,10 @@ Returns the contents of the local server's equivalent of the remote server's "$I
 ### *** /api/v1/federation/request/...
 
 Requests information from a remote domain. MUST be done from a server. Replace ``...`` with the API request you want to make, and ``***`` with GET/POST/PATCH/etc. See the Federation section for more information.
+
+### POST /api/v1/federation/subscribe/$ID
+
+Subscribes to a conference or channel with the given ID. See the Federation section.
 
 ### GET /api/v1/conferences/$ID
 
