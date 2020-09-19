@@ -285,16 +285,16 @@ Invites can be listed through the ``GET /api/v1/conference/<ID>/invites`` API me
 
 Invites are objects. The invite name SHOULD be changeable. There MUST NOT be multiple invites with the same link on one instance.
 
-### Users
+### Members
 
-When a user joins a conference and they aren't banned, their ID is added to the conference's user list and they have their conference permission set to 1. Each user can then have additional information assigned to their account:
+When a user joins a conference and they aren't banned, their ID is added to the conference's member list and they have their conference permission set to 1. Each user can then have additional information assigned to their account:
 
 - their conference-specific nickname;
 - the roles they're part of;
 - the permissions they have been assigned;
 - their ban state (banned or not).
 
-This information can be found by querying ``/api/v1/conference/<ID1>/users/<ID2>``, where ``<ID1>`` is the conference's ID and ``<ID2>`` is the user's ID.
+This information can be found by querying ``/api/v1/conference/<ID1>/members/<ID2>``, where ``<ID1>`` is the conference's ID and ``<ID2>`` is the user's ID.
 
 This information is stored in an object with the type "conference_user".
 
@@ -561,12 +561,12 @@ Beside the regular channel values, direct message channels have the following ad
 | permissions   | string      | yes       | r: no; w: yes [xx3xx permissions] | rw         | yes       | Conference-wide permission set, stored as a permission map.                                    |
 | creation_date | string      | yes       | r: no                             | r          | yes       | Date of the conference's creation. Assigned by the server.                                     |
 | channels      | list of IDs | yes       | r: no                             | r          | yes       | List of IDs of channels present in the conference. Assigned by the server at channel creation. |
-| users         | list of IDs | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of IDs of users who have joined the conference. Modified by the server when a user joins. |
+| members       | list of IDs | yes       | r: yes [user needs to be authenticated and in the conference] | r | yes | List of conference_member objects (people who have joined the conference). Modified by the server when a user joins. |
 | roles         | list of IDs | no        | r: yes [xxx1x permissions]        | r          | yes       | List of IDs of roles present in the conference. Modified by the server when a role is added.   |
 
-#### Conference user
+#### Conference member
 
-``"object_type": "conference_user"``
+``"object_type": "conference_member"``
 
 | Key           | Value type  | Required? | Require authentication?                                           | Read/write | Federate? | Notes                                  |
 |---------------|-------------|-----------|-------------------------------------------------------------------|------------|-----------|----------------------------------------|
@@ -822,7 +822,7 @@ This MUST NOT require authentication.
 
 Takes a Conference object and creates it. Returns the ID of the resulting conference.
 
-### GET /api/v1/conferences/users/$ID
+### GET /api/v1/conferences/members/$ID
 
 Returns information about the user's nickname, roles, and permissions. See the Conferences > Users section for more information.
 
@@ -834,11 +834,11 @@ If the ID does not exist, it MUST return the 404 status code.
 
 Replace ``$ID`` with the user's ID.
 
-### POST /api/v1/conferences/users/$ID/ban
+### POST /api/v1/conferences/members/$ID/ban
 
 Bans an user.
 
-### POST /api/v1/conferences/users/$ID/kick
+### POST /api/v1/conferences/members/$ID/kick
 
 Kicks an user.
 
@@ -858,7 +858,7 @@ This MUST NOT require authentication.
 
 Creates a channel. Returns the ID of the newly created channel.
 
-### PATCH /api/v1/conferences/$ID/users/$ID
+### PATCH /api/v1/conferences/$ID/members/$ID
 
 Modifies information about a user in a conference.
 
