@@ -40,6 +40,10 @@ Note: if only one user/instance/conference/action is mentioned in the example, u
 
 All dates MUST be stored in the ISO 8601 format. Any dates provided in any values MUST match this format.
 
+## Authentication
+
+TODO
+
 ## Objects and IDs
 
 Users, conferences, channels and messages are objects.
@@ -734,6 +738,10 @@ This returns an Account object. See details about the Account object in the List
 ### PATCH /api/v1/accounts/by-name/$NAME
 
 Modifies information about an account, by name. Replace ``$NAME`` with the account's username, without the trailing ``@`` and the ``@domain`` suffix.
+
+### POST /api/v1/accounts
+
+Creates a new Account object. This is not equivalent to creating a new account; see the Authentication section for more information.
 
 ### GET /api/v1/accounts
 
