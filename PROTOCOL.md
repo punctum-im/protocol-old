@@ -820,11 +820,11 @@ This MUST NOT require authentication.
 
 ### POST /api/v1/conferences
 
-Takes a Conference object and creates it. Returns the ID of the resulting conference.
+Takes a Conference object and creates it. Returns a Conference object.
 
-### GET /api/v1/conferences/members/$ID
+### GET /api/v1/conferences/$CONFERENCE_ID/members/$ACCOUNT_ID
 
-Returns information about the user's nickname, roles, and permissions. See the Conferences > Users section for more information.
+Returns the conference_member object for the user with the given ID. This method can also take the ID of the conference_member object, as long as it belongs to the specified conference. See the Conferences > Members section for more information.
 
 If the ID does not belong to an account, it MUST return the 404 status code.
 
@@ -834,33 +834,33 @@ If the ID does not exist, it MUST return the 404 status code.
 
 Replace ``$ID`` with the user's ID.
 
-### POST /api/v1/conferences/members/$ID/ban
-
-Bans an user.
-
-### POST /api/v1/conferences/members/$ID/kick
-
-Kicks an user.
-
-### POST /api/v1/conferences/invite
-
-Creates an invite. Returns the invite link.
-
-Optional argument: name
-
-### GET /api/v1/conferences/invite/$ID
-
-Gets information about a conference.
-
-This MUST NOT require authentication.
-
-### POST /api/v1/conferences/$ID/channel
-
-Creates a channel. Returns the ID of the newly created channel.
-
 ### PATCH /api/v1/conferences/$ID/members/$ID
 
 Modifies information about a user in a conference.
+
+### POST /api/v1/conferences/$CONFERENCE_ID/members/$ACCOUNT_ID/ban
+
+Bans an user.
+
+### POST /api/v1/conferences/$CONFERENCE_ID/members/$ACCOUNT_ID/kick
+
+Kicks an user.
+
+### POST /api/v1/conferences/$CONFERENCE_ID/invites
+
+Creates an invite using provided data. Returns the invite link.
+
+### GET /api/v1/conferences/$CONFERENCE_ID/invites
+
+Returns a list of dicts named "invites" containing dicts of all available invites.
+
+### POST /api/v1/conferences/$CONFERENCE_ID/channels
+
+Creates a channel. Returns the created Channel object.
+
+### GET /api/v1/conferences/$CONFERENCE_ID/channels
+
+Returns a list of dicts named "channels" containing dicts of all available channels.
 
 ### GET /api/v1/channels/$ID
 
@@ -906,4 +906,12 @@ Gets information about an attachment. Replace ``$ID`` with the attachment's ID.
 
 ### POST /api/v1/attachments
 
-Creates an attachment. Returns the ID of the newly created attachment.
+Creates an attachment. Returns the newly created attachment.
+
+### GET /api/v1/invites/$ID
+
+Returns information about the invite object with the given ID. MUST return a 400 status code if the given ID does not belong to an invite.
+
+### POST /api/v1/invites/$ID/join
+
+Joins the conference specified in the invite as the currently authenticated user.
