@@ -1,4 +1,4 @@
-# The Falsetto Protocol
+# Renamed to punctum.im and moved to [https://github.com/punctum-im/protocol](https://github.com/punctum-im/protocol)
 
 The Falsetto Protocol is a chat protocol, inspired by Matrix and Discord. It's fully free and can be implemented by anybody. Servers using the protocol are designed to federate, which allows for multiple self-hosted instances to connect with each other.
 
